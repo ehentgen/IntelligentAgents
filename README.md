@@ -1,1 +1,2 @@
 # IntelligentAgents
+ bidi bidi?
