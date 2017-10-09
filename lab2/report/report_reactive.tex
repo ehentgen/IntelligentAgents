@@ -1,0 +1,122 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage[top=0.8in, bottom=0.8in, left=0.8in, right=0.8in]{geometry}
+% add other packages here
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+% put your group number and names in the author field
+\title{\bf Exercise 2: A Reactive Agent for the Pickup and Delivery Problem}
+\author{Group \textnumero 23: Jean-Thomas FURRER, Emily HENTGEN}
+
+% the report should not be longer than 3 pages
+
+\begin{document}
+\maketitle
+
+\section{Problem Representation}
+
+\subsection{Representation Description}
+% describe how you design the state representation, the possible actions, the reward table and the probability transition table
+
+In our implementation, a state is described by three different attributes:
+the current city of the agent, whether there is an available task is this city or not, and the destination city of the task.
+
+An action is described by three different attributes as well: whether it consists of a pick up or just a move between two cities, the departure city and the destination city.
+
+The reward table consists of a table mapping a \textit{State} to a numerical reward. Similarly, the probability transition table maps a \textit{State} to the probability of arriving at this \textit{State}.
+For a \textit{State} with an available task, this is simply the probability of having an available task in the current city to the destination city (given by the task distribution probability).
+For a \textit{State} with no available task, this is 1 minus the sum of all probabilities of having a task from the current city to another city in the network.
+
+\subsection{Implementation Details}
+% describe the implementation details of the representations above and the implementation details of the reinforcement learning algorithm you implemented
+
+The agent behaviour is implemented in the \textit{ReactiveTemplate} class. For comparison purposes, there is also a dummy agent who randomly travels between cities, and randomly picks the available task or not; its behaviour implemented in the \textit{ReactiveDummyTemplate} class.
+The two classes \textit{State} and \textit{Action} implement a state respectively an action representation, both defined by their respective above-mentioned attributes.
+
+The main data structures are implemented as \textit{HashMap}s, so that accessing elements is fast. The data structure representing the set of all states is a \textit{List}. The additional data structure \textit{statesForCity} is not strictly necessary, but speeds up the retrieval of all states associated to a given city (instead of looping through the entire \textit{allStates} list).
+\begin{itemize}
+\itemsep 1mm 
+\item[]\textbf{rewards}  \textit{HashMap\textless template.Action, Double\textgreater}
+\item[]\textbf{probabilities} \textit{HashMap\textless State, Double\textgreater}
+\item[]\textbf{bestActions} \textit{HashMap\textless State, Action\textgreater}
+\item[]\textbf{bestValues} \textit{HashMap\textless State, Double\textgreater}
+\item[]\textbf{allStates} \textit{List\textless State\textgreater}
+\item[]\textbf{statesForCity} \textit{HashMap\textless City, List\textless State\textgreater \textgreater}
+\end{itemize}
+
+The redundant attributes between a \textit{State} and an \textit{Action} (in particular the current city/departure city) make the use of the HashMaps more practical: the keys, which conceptually consists of a \textit{(State, Action)} pair are here either a \textit{State} or an \textit{Action}, which simplifies the overall implementation.
+
+\begin{algorithm}
+\caption{Learning Strategy (Value iteration)}
+\begin{algorithmic}[1]
+\Statex \textsc{Input}
+\Statex \hspace{\algorithmicindent} \textit{rewards} \Comment{the table mapping an action to its expected reward}
+\Statex \hspace{\algorithmicindent} \textit{probabilities} \Comment{the table mapping a state to the probability of being in this state}
+\Statex \hspace{\algorithmicindent} \textit{allStates} \Comment{the set of all possible states}
+\Statex \hspace{\algorithmicindent} \textit{statesForCity} \Comment{the table mapping a city to its set of possible states}
+\Statex \hspace{\algorithmicindent} \textit{discountFactor} \Comment{the probability an agent picks up a task}
+\Statex \textsc{Output}
+\Statex \hspace{\algorithmicindent} \textit{bestMoves} \Comment{the table mapping a state to the next best action and the associated value}
+\Statex
+\State $hasConverged \gets false$
+\State initialize $bestMoves$ to an empty table
+\Statex
+\While{not $hasConverged$}
+\For{$state$ in $allStates$}
+	\State $maxQ \gets -\infty$
+	\For{$action$ in $state.actions$}
+		\State $acc \gets 0$
+		\For{$nextState$ in $statesForCity[action.cityTo]$}
+			\State $acc = acc + probabilities[nextState] * bestMoves[nextState].value$
+		\EndFor
+		\State $Q = rewards[action] + discountFactor * acc$
+		\If{$Q > maxQ$} 
+			\State $maxQ \gets Q$
+			\State $bestMoves[state] = (action, Q)$
+			\State $hasConverged \gets false$
+		\EndIf
+	\EndFor
+\EndFor
+\EndWhile
+\State \Return bestMoves
+\end{algorithmic}
+\end{algorithm}
+
+
+
+
+
+\section{Results}
+% in this section, you describe several results from the experiments with your reactive agent
+
+\subsection{Experiment 1: Discount factor}
+% the purpose of this experiment is to understand how the discount factor influences the result
+
+\subsubsection{Setting}
+% you describe how you perform the experiment (you also need to specify the configuration used for the experiment)
+
+\subsubsection{Observations}
+% you describe the experimental results and the conclusions you inferred from these results
+
+\subsection{Experiment 2: Comparisons with dummy agents}
+% you compare the results of your agent with two dummy agents: the random agent that was already given in the starter files and another dummy agent that you define and create. You should report the results from the simulations using the topologies given in the starter files and optionally, additional topologies that you create.
+
+\subsubsection{Setting}
+% you describe how you perform the experiment and you describe the dummy agent you created (you also need to specify the configuration used for the experiment)
+
+\subsubsection{Observations}
+% elaborate on the observed results
+
+\vdots
+
+\subsection{Experiment n}
+% other experiments you would like to present
+
+\subsubsection{Setting}
+
+\subsubsection{Observations}
+
+\end{document}
