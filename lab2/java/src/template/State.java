@@ -26,15 +26,18 @@ public class State {
 		List<City> neighbourCities = currentCity.neighbors();
 
 		if (!hasAvailableTask) {
-			// there is no available task in this city, or the agent did not
-			// pick up the available task
-			boolean isPickUpTask = false;
+			// there is no available task in this city
 			for (City neighbourCity : neighbourCities) {
-				actions.add(new Action(isPickUpTask, currentCity, neighbourCity));
+				actions.add(new Action(false, currentCity, neighbourCity));
 			}
 		} else {
-			// the agent picked up the available task
-			actions.add(new Action(hasAvailableTask, currentCity, destinationCity));
+			// the agent picks up the available task
+			actions.add(new Action(true, currentCity, destinationCity));
+			// or the agent does not pick up the available task and moves to a
+			// neighboring city
+			for (City neighbourCity : neighbourCities) {
+				actions.add(new Action(false, currentCity, neighbourCity));
+			}
 		}
 	}
 

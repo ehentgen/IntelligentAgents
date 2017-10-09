@@ -46,7 +46,7 @@ public class ReactiveTemplate implements ReactiveBehavior {
 		rewards = createRewardTable(td, agent);
 		probabilities = createProbabilityTable(topology, td);
 
-		System.out.println("---Reactive agent---");
+		System.out.println("--- " + name() + " ---");
 		System.out.println("Learning the strategy...");
 		learnStrategy();
 		System.out.println("Strategy learned");
@@ -84,15 +84,15 @@ public class ReactiveTemplate implements ReactiveBehavior {
 			List<template.Action> actions = state.getActions();
 
 			for (template.Action action : actions) {
-				double reward = 0;
+				double expectedReward = 0;
 				if (action.isPickUpTask()) {
-					reward = taskDistribution.reward(action.cityFrom(), action.cityTo());
+					expectedReward = taskDistribution.reward(action.cityFrom(), action.cityTo());
 				}
 				// distance in km
 				double distance = action.cityFrom().distanceTo(action.cityTo());
-				// get the first vehicle of the agent (?)
+				// get the first vehicle of the agent
 				double cost = agent.vehicles().get(0).costPerKm();
-				rewards.put(action, reward - distance * cost);
+				rewards.put(action, expectedReward - distance * cost);
 			}
 		}
 		return rewards;
@@ -170,7 +170,7 @@ public class ReactiveTemplate implements ReactiveBehavior {
 		template.Action bestAction;
 		City currentCity = vehicle.getCurrentCity();
 
-		if (availableTask != null && availableTask.pickupCity.equals(currentCity)) {
+		if (availableTask != null && availableTask.pickupCity == currentCity) {
 			State state = new State(currentCity, true, availableTask.deliveryCity);
 			bestAction = bestActions.get(state);
 
@@ -186,11 +186,15 @@ public class ReactiveTemplate implements ReactiveBehavior {
 		}
 
 		if (numActions >= 1) {
-			System.out.println("Reactive agent -- The total profit after " + numActions + " actions is " + myAgent.getTotalProfit()
+			System.out.println(name() + " -- The total profit after " + numActions + " actions is " + myAgent.getTotalProfit()
 					+ " (average profit: " + (myAgent.getTotalProfit() / (double) numActions) + ")");
 		}
 		numActions++;
 
 		return action;
+	}
+
+	private String name() {
+		return "Reactive agent";
 	}
 }

@@ -13,7 +13,7 @@ import logist.task.TaskDistribution;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
 
-public class ReactiveDummyTemplate implements ReactiveBehavior {
+public class RandomDummyTemplate implements ReactiveBehavior {
 
 	private Random random;
 	private double pPickup;
@@ -32,14 +32,15 @@ public class ReactiveDummyTemplate implements ReactiveBehavior {
 		this.myAgent = agent;
 
 		// no learning strategy
-		System.out.println("---Dummy agent---");
+		System.out.println("--- " + name() + " ---");
 		System.out.println("Setup completed");
 	}
 
 	@Override
 	public Action act(Vehicle vehicle, Task availableTask) {
-		// The agent always picks up a task if it is available, and otherwise
-		// randomly moves to a neighboring city
+		// The random agent picks up a task if it is available and according to
+		// a certain probability, and otherwise randomly moves to a neighboring
+		// city
 		Action action;
 
 		if (availableTask == null || random.nextDouble() > pPickup) {
@@ -50,12 +51,16 @@ public class ReactiveDummyTemplate implements ReactiveBehavior {
 		}
 
 		if (numActions >= 1) {
-			System.out.println("Dummy agent -- The total profit after " + numActions + " actions is " + myAgent.getTotalProfit()
+			System.out.println(name() + " -- The total profit after " + numActions + " actions is " + myAgent.getTotalProfit()
 					+ " (average profit: " + (myAgent.getTotalProfit() / (double) numActions) + ")");
 		}
 		numActions++;
 
 		return action;
+	}
+
+	private String name() {
+		return "Random agent";
 	}
 
 }
