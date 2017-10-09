@@ -22,6 +22,13 @@ public class State {
 		createActions();
 	}
 
+	/**
+	 * This method creates all the possible actions for a given state and store them. <br><br>
+	 * There are 3 cases : (implemented in this order)<br>
+	 * -- Task not available <br>
+	 * -- Task available, accepted <br>
+	 * -- Task available, refused <br>
+	 */
 	private void createActions() {
 		List<City> neighbourCities = currentCity.neighbors();
 
@@ -41,6 +48,12 @@ public class State {
 		}
 	}
 
+	
+	/*
+	 * ==========================
+	 * ==== Getters & others ====
+	 * ==========================
+	 */
 	public List<Action> getActions() {
 		return actions;
 	}

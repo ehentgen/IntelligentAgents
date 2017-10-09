@@ -8,12 +8,23 @@ public class Action {
 	private City cityFrom;
 	private City cityTo;
 
+	/**
+	 * 
+	 * @param pickUpTask_ : whether a task is accepted during this action
+	 * @param cityFrom_ 
+	 * @param cityTo_
+	 */
 	public Action(boolean pickUpTask_, City cityFrom_, City cityTo_) {
 		this.isPickUpTask = pickUpTask_;
 		this.cityFrom = cityFrom_;
 		this.cityTo = cityTo_;
 	}
 
+	/*
+	 * ==========================
+	 * ==== Getters & others ====
+	 * ==========================
+	 */
 	public City cityFrom() {
 		return cityFrom;
 	}
