@@ -39,7 +39,7 @@ For a \textit{State} with no available task, this is 1 minus the sum of all prob
 \subsection{Implementation Details}
 % describe the implementation details of the representations above and the implementation details of the reinforcement learning algorithm you implemented
 
-The agent behaviour is implemented in the \textit{ReactiveTemplate} class. For comparison purposes, there is also a dummy agent who randomly travels between cities, and randomly picks the available task or not; its behaviour is implemented in the \textit{ReactiveDummyTemplate} class.
+The agent behaviour is implemented in the \textit{ReactiveTemplate} class. For comparison purposes, there is also a dummy agent who randomly travels between cities, and randomly picks the available task or not; its behaviour implemented in the \textit{ReactiveDummyTemplate} class.
 The two classes \textit{State} and \textit{Action} implement a state respectively an action representation, both defined by their respective above-mentioned attributes.
 
 The main data structures are implemented as \textit{HashMap}s, so that accessing elements is fast. The data structure representing the set of all states is a \textit{List}. The additional data structure \textit{statesForCity} is not strictly necessary, but speeds up the retrieval of all states associated to a given city (instead of looping through the entire \textit{allStates} list).
@@ -143,19 +143,15 @@ The reactive agent is tested against the random agent (who randomly picks up tas
 \centering
 \begin{subfigure}[t]{0.47\textwidth}
 \captionsetup{width=1.0\textwidth}
-\includegraphics[trim={0cm 0cm 0cm 0cm},clip, scale=0.2]{images/random_085_routine_085_reactive_085".png}
+\includegraphics[trim={0cm 0cm 0cm 0cm},clip, scale=0.2]{images/"reactive_085_routine_085_random_085".png}
 \caption{Reactive agent, discount factor = 0.85 (green) against random dummy agent, discount factor = 0.85 (blue) and routine dummy agent, discount factor = 0.85 (red)}
 \label{reactive vs dummies a}
 \end{subfigure}
 \hfill
 \begin{subfigure}[t]{0.47\textwidth}
 \captionsetup{width=1.0\textwidth}
-\includegraphics[trim={0cm 0cm 0cm 0cm},clip, scale=0.2]{images/"random_100_routine_100_reactive_099_reactive_050_routine_050_random_050".png}
-\caption{Reactive agent with discount factor = 0.99 (green) against another reactive agent with discount factor = 0.5 (yellow), 
-a random agent with discount factor = 1.0 (blue),
-a dummy agent with discount factor = 1.0 (red),
-a dummy agent with discount factor = 0.5 (magenta) and 
-a random agent with discount factor = 0.5 (cyan)}
+\includegraphics[trim={0cm 0cm 0cm 0cm},clip, scale=0.2]{images/"reactive_099_routine_100_random_100".png}
+\caption{Reactive agent, discount factor = 0.99 (green) against random dummy agent, discount factor = 1.0 (blue) and routine dummy agent, discount factor = 1.0 (red)}
 \label{reactive vs dummies b}
 \end{subfigure}
 \caption{Reactive agent performance compared to dummy agents performances}

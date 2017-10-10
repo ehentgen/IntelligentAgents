@@ -15,7 +15,7 @@ import logist.task.TaskDistribution;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
 
-public class EmilyTemplate implements ReactiveBehavior {
+public class ReactiveTemplate implements ReactiveBehavior {
 
 	private double pPickup;
 	private int numActions;
@@ -36,7 +36,12 @@ public class EmilyTemplate implements ReactiveBehavior {
 		// If the property is not present it defaults to 0.95
 		Double discount = agent.readProperty("discount-factor", Double.class, 0.95);
 
-		this.pPickup = discount;
+		if (Math.abs(discount) >=1) {
+			this.pPickup = 0.95;
+			System.out.println("Discount factor must be in [0;1). Default is 0.95");
+		} else {
+			this.pPickup = discount;
+		}
 		this.numActions = 0;
 		this.myAgent = agent;
 
@@ -63,7 +68,7 @@ public class EmilyTemplate implements ReactiveBehavior {
 
 		//If there is a task in the present city :
 		if (availableTask != null && availableTask.pickupCity == currentCity) {
-			State state = new State(currentCity, true, availableTask.deliveryCity);
+			State state = new State(currentCity, availableTask.deliveryCity);
 			bestAction = bestActions.get(state); //Get the best action for this state
 
 			//Execute the action :
@@ -71,7 +76,7 @@ public class EmilyTemplate implements ReactiveBehavior {
 			else {action = new Move(bestAction.cityTo());}
 			
 		} else {
-			State state = new State(currentCity, false, null);
+			State state = new State(currentCity, null);
 			bestAction = bestActions.get(state);
 			action = new Move(bestAction.cityTo());
 		}
@@ -102,7 +107,7 @@ public class EmilyTemplate implements ReactiveBehavior {
 			//Firstly : Create a state for with a task for cityFrom -> any city.
 			for (City cityTo : allCities) {
 				if (!cityFrom.equals(cityTo)) {
-					State stateWithTask = new State(cityFrom, true, cityTo);
+					State stateWithTask = new State(cityFrom, cityTo);
 					allStates.add(stateWithTask);
 					states.add(stateWithTask);
 					bestValues.put(stateWithTask, (double) -Double.MAX_VALUE); //instantiate with very low score...
@@ -110,7 +115,7 @@ public class EmilyTemplate implements ReactiveBehavior {
 			}
 			
 			//Secondly : Create another state without any task in cityFrom 
-			State stateWithoutTask = new State(cityFrom, false, null);
+			State stateWithoutTask = new State(cityFrom, null);
 			allStates.add(stateWithoutTask);
 			states.add(stateWithoutTask);
 			bestValues.put(stateWithoutTask, (double) -Double.MAX_VALUE);
@@ -157,29 +162,18 @@ public class EmilyTemplate implements ReactiveBehavior {
 
 		for (State state : allStates) {
 			double probability = 0;
-			if (state.hasAvailableTask()) {
+			if (state.hasAvailableTask()) { //can replace by (state.destinationCity() != null)
 				probability = taskDistribution.probability(state.currentCity(), state.destinationCity());
 			} else {
 				probability = taskDistribution.probability(state.currentCity(), null);
-				//probability = 1 - isTaskInCityProbability(topology, taskDistribution, state.currentCity());
 			}
 			probabilities.put(state, probability);
 		}
 		return probabilities;
 	}
 
-	/*not used
-	private double isTaskInCityProbability(Topology topology, TaskDistribution taskDistribution, City city) {
-		double probability = 0;
-		for (City cityTo : topology.cities()) {
-			probability += taskDistribution.probability(city, cityTo);
-		}
-		return probability;
-	}
-	*/
-
 	/**
-	 * Leanr the over-the-top amazing strategy :)
+	 * This method implements the iteration value algorithm. 
 	 */
 	public void learnStrategy() {
 		boolean hasConverged = false;
@@ -215,10 +209,10 @@ public class EmilyTemplate implements ReactiveBehavior {
 						bestActions.put(state, action);
 						bestValues.put(state, maxQValue);
 						hasConverged = false;
-					} //else { hasConverged = true;}
+					}
 				}
 			}
-		} //while (!hasConverged);
+		}
 	}
 
 	/**
@@ -226,6 +220,6 @@ public class EmilyTemplate implements ReactiveBehavior {
 	 * @return the name of the agent
 	 */
 	private String name() {
-		return "Reactive agent";
+		return myAgent.name();
 	}
 }

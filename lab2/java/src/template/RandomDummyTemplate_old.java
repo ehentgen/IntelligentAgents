@@ -13,7 +13,7 @@ import logist.task.TaskDistribution;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
 
-public class RandomTemplate implements ReactiveBehavior {
+public class RandomDummyTemplate implements ReactiveBehavior {
 
 	private Random random;
 	private double pPickup;
@@ -27,12 +27,7 @@ public class RandomTemplate implements ReactiveBehavior {
 		Double discount = agent.readProperty("discount-factor", Double.class, 0.95);
 
 		this.random = new Random();
-		if (Math.abs(discount) >=1) {
-			this.pPickup = 0.95;
-			System.out.println("Discount factor must be in [0;1). Default is 0.95");
-		} else {
-			this.pPickup = discount;
-		}
+		this.pPickup = discount;
 		this.numActions = 0;
 		this.myAgent = agent;
 
