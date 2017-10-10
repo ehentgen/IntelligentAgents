@@ -43,25 +43,25 @@
 	<!-- #### DUMMY AGENTS ### -->
 	<agent name="random-dummy-1">
 		<set class-path="bin/"/>
-		<set class-name="template.RandomDummyTemplate"/>
+		<set class-name="template.RandomTemplate"/>
 		<set discount-factor="1.0"/>
 	</agent>
 	
 	<agent name="random-dummy-2">
 		<set class-path="bin/"/>
-		<set class-name="template.RandomDummyTemplate"/>
+		<set class-name="template.RandomTemplate"/>
 		<set discount-factor="0.5"/>
 	</agent>
 
 	<agent name="routine-dummy-1">
 		<set class-path="bin/"/>
-		<set class-name="template.RoutineDummyTemplate"/>
+		<set class-name="template.DummyTemplate"/>
 		<set discount-factor="1.0"/>
 	</agent>
 	
 	<agent name="routine-dummy-2">
 		<set class-path="bin/"/>
-		<set class-name="template.RoutineDummyTemplate"/>
+		<set class-name="template.DummyTemplate"/>
 		<set discount-factor="0.5"/>
 	</agent>
 	
