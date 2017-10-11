@@ -8,24 +8,29 @@ import logist.topology.Topology.City;
 public class State {
 
 	private City currentCity;
-	private boolean hasAvailableTask;
 	private City destinationCity;
 
 	private List<Action> actions;
 
-	public State(City currentCity_, boolean hasAvailableTask_, City destinationCity_) {
+	public State(City currentCity_, City destinationCity_) {
 		this.currentCity = currentCity_;
-		this.hasAvailableTask = hasAvailableTask_;
 		this.destinationCity = destinationCity_;
 
 		actions = new ArrayList<Action>();
 		createActions();
 	}
 
+	/**
+	 * This method creates all the possible actions for a given state and store them. <br><br>
+	 * There are 3 cases : (implemented in this order)<br>
+	 * -- Task not available <br>
+	 * -- Task available, accepted <br>
+	 * -- Task available, refused <br>
+	 */
 	private void createActions() {
 		List<City> neighbourCities = currentCity.neighbors();
 
-		if (!hasAvailableTask) {
+		if (!hasAvailableTask()) {
 			// there is no available task in this city
 			for (City neighbourCity : neighbourCities) {
 				actions.add(new Action(false, currentCity, neighbourCity));
@@ -41,6 +46,12 @@ public class State {
 		}
 	}
 
+	
+	/*
+	 * ==========================
+	 * ==== Getters & others ====
+	 * ==========================
+	 */
 	public List<Action> getActions() {
 		return actions;
 	}
@@ -54,7 +65,7 @@ public class State {
 	}
 
 	public boolean hasAvailableTask() {
-		return hasAvailableTask;
+		return (destinationCity != null);
 	}
 
 	// Eclipse generated hashCode() method
@@ -65,7 +76,6 @@ public class State {
 		result = prime * result + ((actions == null) ? 0 : actions.hashCode());
 		result = prime * result + ((currentCity == null) ? 0 : currentCity.hashCode());
 		result = prime * result + ((destinationCity == null) ? 0 : destinationCity.hashCode());
-		result = prime * result + (hasAvailableTask ? 1231 : 1237);
 		return result;
 	}
 
@@ -94,9 +104,6 @@ public class State {
 				return false;
 		} else if (!destinationCity.equals(other.destinationCity))
 			return false;
-		if (hasAvailableTask != other.hasAvailableTask)
-			return false;
 		return true;
 	}
-
 }

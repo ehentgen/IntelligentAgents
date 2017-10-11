@@ -36,7 +36,12 @@ public class ReactiveTemplate implements ReactiveBehavior {
 		// If the property is not present it defaults to 0.95
 		Double discount = agent.readProperty("discount-factor", Double.class, 0.95);
 
-		this.pPickup = discount;
+		if (Math.abs(discount) > 1) {
+			this.pPickup = 0.95;
+			System.out.println("Discount factor must be in [0;1]. Default is 0.95");
+		} else {
+			this.pPickup = discount;
+		}
 		this.numActions = 0;
 		this.myAgent = agent;
 
@@ -53,6 +58,51 @@ public class ReactiveTemplate implements ReactiveBehavior {
 		System.out.println("Setup completed");
 	}
 
+	@Override
+	public Action act(Vehicle vehicle, Task availableTask) {
+		// The agent applies its learned strategy here
+
+		Action action;
+		template.Action bestAction;
+		City currentCity = vehicle.getCurrentCity();
+
+		// If there is a task in the present city :
+		if (availableTask != null && availableTask.pickupCity == currentCity) {
+			State state = new State(currentCity, availableTask.deliveryCity);
+			bestAction = bestActions.get(state); // Get the best action for this
+													// state
+
+			// Execute the action :
+			if (bestAction.isPickUpTask()) {
+				action = new Pickup(availableTask);
+			} else {
+				action = new Move(bestAction.cityTo());
+			}
+
+		} else {
+			State state = new State(currentCity, null);
+			bestAction = bestActions.get(state);
+			action = new Move(bestAction.cityTo());
+		}
+
+		if (numActions >= 1) {
+			System.out.println(name() + " -- The total profit after " + numActions + " actions is " + myAgent.getTotalProfit()
+					+ " (average profit: " + (myAgent.getTotalProfit() / (double) numActions) + ")");
+		}
+		numActions++;
+
+		return action;
+	}
+
+	/**
+	 * Create all the possible states. <br>
+	 * -- Also fills bestValues (HashMap) with an initial low score (State ->
+	 * score)<br>
+	 * -- Also fills statesForCity : mapping between a city and its states
+	 * 
+	 * @param topology
+	 * @return A list of all possible states
+	 */
 	private List<State> createStates(Topology topology) {
 		List<State> allStates = new ArrayList<State>();
 		List<City> allCities = topology.cities();
@@ -60,15 +110,23 @@ public class ReactiveTemplate implements ReactiveBehavior {
 		for (City cityFrom : allCities) {
 			List<State> states = new ArrayList<State>();
 
+			// Firstly : Create a state for with a task for cityFrom -> any
+			// city.
 			for (City cityTo : allCities) {
 				if (!cityFrom.equals(cityTo)) {
-					State stateWithTask = new State(cityFrom, true, cityTo);
+					State stateWithTask = new State(cityFrom, cityTo);
 					allStates.add(stateWithTask);
 					states.add(stateWithTask);
-					bestValues.put(stateWithTask, (double) -Double.MAX_VALUE);
+					bestValues.put(stateWithTask, (double) -Double.MAX_VALUE); // instantiate
+																				// with
+																				// very
+																				// low
+																				// score...
 				}
 			}
-			State stateWithoutTask = new State(cityFrom, false, null);
+
+			// Secondly : Create another state without any task in cityFrom
+			State stateWithoutTask = new State(cityFrom, null);
 			allStates.add(stateWithoutTask);
 			states.add(stateWithoutTask);
 			bestValues.put(stateWithoutTask, (double) -Double.MAX_VALUE);
@@ -77,6 +135,14 @@ public class ReactiveTemplate implements ReactiveBehavior {
 		return allStates;
 	}
 
+	/**
+	 * This method computes the cost or reward for all actions of all states
+	 * 
+	 * @param taskDistribution
+	 * @param agent
+	 * @return rewards ; the mapping between any possible action and its
+	 *         'reward' (reward - cost balance)
+	 */
 	private HashMap<template.Action, Double> createRewardTable(TaskDistribution taskDistribution, Agent agent) {
 		HashMap<template.Action, Double> rewards = new HashMap<template.Action, Double>();
 
@@ -98,30 +164,33 @@ public class ReactiveTemplate implements ReactiveBehavior {
 		return rewards;
 	}
 
+	/**
+	 * We recover the probabilities given in the taskDistribution and map them
+	 * with all our states.
+	 * 
+	 * @param topology
+	 * @param taskDistribution
+	 * @return probabilities : a mapping between any state and its probability
+	 */
 	private HashMap<State, Double> createProbabilityTable(Topology topology, TaskDistribution taskDistribution) {
 		HashMap<State, Double> probabilities = new HashMap<State, Double>();
 
 		for (State state : allStates) {
 			double probability = 0;
-			if (state.hasAvailableTask()) {
+			if (state.hasAvailableTask()) { // can replace by
+											// (state.destinationCity() != null)
 				probability = taskDistribution.probability(state.currentCity(), state.destinationCity());
 			} else {
-				probability = 1 - isTaskInCityProbability(topology, taskDistribution, state.currentCity());
+				probability = taskDistribution.probability(state.currentCity(), null);
 			}
 			probabilities.put(state, probability);
 		}
 		return probabilities;
 	}
 
-	private double isTaskInCityProbability(Topology topology, TaskDistribution taskDistribution, City city) {
-
-		double probability = 0;
-		for (City cityTo : topology.cities()) {
-			probability += taskDistribution.probability(city, cityTo);
-		}
-		return probability;
-	}
-
+	/**
+	 * This method implements the iteration value algorithm.
+	 */
 	public void learnStrategy() {
 		boolean hasConverged = false;
 		while (!hasConverged) {
@@ -162,39 +231,12 @@ public class ReactiveTemplate implements ReactiveBehavior {
 		}
 	}
 
-	@Override
-	public Action act(Vehicle vehicle, Task availableTask) {
-		// The agent applies its learned strategy here
-
-		Action action;
-		template.Action bestAction;
-		City currentCity = vehicle.getCurrentCity();
-
-		if (availableTask != null && availableTask.pickupCity == currentCity) {
-			State state = new State(currentCity, true, availableTask.deliveryCity);
-			bestAction = bestActions.get(state);
-
-			if (bestAction.isPickUpTask()) {
-				action = new Pickup(availableTask);
-			} else {
-				action = new Move(bestAction.cityTo());
-			}
-		} else {
-			State state = new State(currentCity, false, null);
-			bestAction = bestActions.get(state);
-			action = new Move(bestAction.cityTo());
-		}
-
-		if (numActions >= 1) {
-			System.out.println(name() + " -- The total profit after " + numActions + " actions is " + myAgent.getTotalProfit()
-					+ " (average profit: " + (myAgent.getTotalProfit() / (double) numActions) + ")");
-		}
-		numActions++;
-
-		return action;
-	}
-
+	/**
+	 * Getter for the name of an agent
+	 * 
+	 * @return the name of the agent
+	 */
 	private String name() {
-		return "Reactive agent";
+		return myAgent.name();
 	}
 }

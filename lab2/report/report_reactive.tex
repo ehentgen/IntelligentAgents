@@ -1,4 +1,4 @@
-\documentclass[11pt]{article}
+\documentclass[10pt]{article}
 
 \usepackage{amsmath}
 \usepackage{textcomp}
@@ -27,20 +27,20 @@
 \subsection{Representation Description}
 % describe how you design the state representation, the possible actions, the reward table and the probability transition table
 
-In our implementation, a state is described by three different attributes:
-the current city of the agent, whether there is an available task is this city or not, and the destination city of the task.
+In our implementation, a state is described by two different attributes:
+the current city of the agent and the destination city of the task. Implicitly, whether there is an available task in this city is indicated by the destination city, and a \textit{null} value means there is no available task.
 
-An action is described by three different attributes as well: whether it consists of a pick up or just a move between two cities, the departure city and the destination city.
+An action is described by three different attributes: whether it consists of a pick up or just a move between two cities, the departure city and the destination city.
 
 The reward table consists of a table mapping a \textit{State} to a numerical reward. Similarly, the probability transition table maps a \textit{State} to the probability of arriving at this \textit{State}.
-For a \textit{State} with an available task, this is simply the probability of having an available task in the current city to the destination city (given by the task distribution probability).
-For a \textit{State} with no available task, this is 1 minus the sum of all probabilities of having a task from the current city to another city in the network.
+For a \textit{State} with an available task, this is simply the probability of having an available task in the current city to the destination city, given by the task distribution.
+For a \textit{State} with no available task, that is, a state with a \textit{null} destination city, this is the probability of having no task in this city, also given by the task distribution.
 
 \subsection{Implementation Details}
 % describe the implementation details of the representations above and the implementation details of the reinforcement learning algorithm you implemented
 
-The agent behaviour is implemented in the \textit{ReactiveTemplate} class. For comparison purposes, there is also a dummy agent who randomly travels between cities, and randomly picks the available task or not; its behaviour implemented in the \textit{ReactiveDummyTemplate} class.
-The two classes \textit{State} and \textit{Action} implement a state respectively an action representation, both defined by their respective above-mentioned attributes.
+The agent behaviour is implemented in the \textit{ReactiveTemplate} class. For comparison purposes, there are two additional dummy agents: a random agent who randomly travels between cities, and randomly picks the available task or not (implemented in the \textit{RandomTemplate} class) and a routine agent, who also randomly picks up tasks, and otherwise follows a randomly predetermined itinerary (implemented in the \textit{DummyTemplate} class).
+The two classes \textit{State} and \textit{Action} (\textit{template.Action}) implement a state respectively an action representation, both defined by their respective above-mentioned attributes.
 
 The main data structures are implemented as \textit{HashMap}s, so that accessing elements is fast. The data structure representing the set of all states is a \textit{List}. The additional data structure \textit{statesForCity} is not strictly necessary, but speeds up the retrieval of all states associated to a given city (instead of looping through the entire \textit{allStates} list).
 \begin{itemize}
@@ -53,6 +53,7 @@ The main data structures are implemented as \textit{HashMap}s, so that accessing
 \item[]\textbf{statesForCity} \textit{HashMap\textless City, List\textless State\textgreater \textgreater}
 \end{itemize}
 
+\noindent
 The redundant attributes between a \textit{State} and an \textit{Action} (in particular the current city/departure city) make the use of the HashMaps more practical: the keys, which conceptually consists of a \textit{(State, Action)} pair are here either a \textit{State} or an \textit{Action}, which simplifies the overall implementation.
 
 \begin{algorithm}[t]
@@ -103,7 +104,7 @@ The redundant attributes between a \textit{State} and an \textit{Action} (in par
 
 \subsubsection{Setting}
 % you describe how you perform the experiment (you also need to specify the configuration used for the experiment)
-In this setting, five different reactive agents with a discount factor of 0.99, 0.85, 0.5, 0.2 and 0.0 respectively are tested against each other.
+In this setting, three different reactive agents with a discount factor of 0.99, 0.5 and 0.0 respectively are tested against each other.
 
 \subsubsection{Observations}
 % you describe the experimental results and the conclusions you inferred from these results
@@ -112,29 +113,25 @@ In this setting, five different reactive agents with a discount factor of 0.99, 
 \centering
 \begin{subfigure}[t]{0.47\textwidth}
 \captionsetup{width=1.0\textwidth}
-\includegraphics[trim={0cm 0cm 0cm 0cm},clip, scale=0.2]{images/"reactive_discount_factor_3".png}
-\caption{Reactive agent 1, discount factor = 0.99 (blue) -- reactive agent 2, discount factor = 0.85 (red) -- reactive agent 3, discount factor = 0.5 (green) -- reactive agent 4, discount factor = 0.2 (yellow) -- reactive agent 4, discount factor = 0.0 (magenta)}
+\includegraphics[trim={0cm 0cm 0cm 0cm},clip, scale=0.2]{images/"reactive_discount_factor_099_050_000".png}
+\caption{Reactive agent 1 with discount factor = 0.99 (blue) -- reactive agent 2 with discount factor = 0.50 (red) -- reactive agent 3 with discount factor = 0.0}
 \end{subfigure}
-\hfill
-\begin{subfigure}[t]{0.47\textwidth}
-\captionsetup{width=1.0\textwidth}
-\includegraphics[trim={0cm 0cm 0cm 0cm},clip, scale=0.2]{images/"reactive_vs_dummies_1".png}
-\caption{Reactive agent against random dummy agent and routine dummy agent}
-\end{subfigure}
-\caption{}
+\caption{Discount factor influence on the reward per km}
+\label{discount factor}
 \end{figure}
 
 On average, the higher the discount factor, the higher the performance of the reactive agent: the reactive agent with a discount factor of 0.99 has in the long run a reward per km greater than all the other agents.
-The agents which display the lowest performance are the ones with discount factors, 0.2 and 0.0, followed by the agents with discount factors 0.85 and 0.5. 
-These results however can often be observed only after a significant number of steps; the fluctuations between the average reward per km of the reactive agents with different.
-At the beginning of the simulation for instance, the reactive agent with discount factor 0.0, which optimizes for an immediate reward, performs better than the reactive agent with discount factor 0.2 or sometimes even 0.5.
+The agent which displays the lowest performance is the one with discount factor 0.0, that is, the one which optimizes its behaviour for an immediate reward.
+These results however can often be observed only after a significant number of steps, due to important fluctuations between the average reward per km of the reactive agents.
+At some points during the simulation for instance, the reactive agent with discount factor 0.5 may outperform the reactive agent with discount factor 0.99, before the tendency eventually stabilizes (Figure \ref{discount factor}).
 
 \subsection{Experiment 2: Comparisons with dummy agents}
 % you compare the results of your agent with two dummy agents: the random agent that was already given in the starter files and another dummy agent that you define and create. You should report the results from the simulations using the topologies given in the starter files and optionally, additional topologies that you create.
 
 \subsubsection{Setting}
 % you describe how you perform the experiment and you describe the dummy agent you created (you also need to specify the configuration used for the experiment)
-The reactive agent is tested against the random agent (who randomly picks up tasks and randomly moves between cities otherwise) and the routine agent (who randomly picks up tasks and otherwise moves between cities according to a randomly predefined itinerary.
+Here, a reactive agent with discount factor of 0.85 is first tested against a random agent and a routine agent who both accept tasks with probability 0.85.
+Two reactive agents with discount factors 0.99 and 0.5 are then tested against two random agents and two routine agents accepting tasks with probability 0.99 or 0.5.
 
 \subsubsection{Observations}
 % elaborate on the observed results
@@ -143,26 +140,34 @@ The reactive agent is tested against the random agent (who randomly picks up tas
 \centering
 \begin{subfigure}[t]{0.47\textwidth}
 \captionsetup{width=1.0\textwidth}
-\includegraphics[trim={0cm 0cm 0cm 0cm},clip, scale=0.2]{images/"reactive_085_routine_085_random_085".png}
-\caption{Reactive agent, discount factor = 0.85 (green) against random dummy agent, discount factor = 0.85 (blue) and routine dummy agent, discount factor = 0.85 (red)}
+\includegraphics[trim={0cm 0cm 0cm 0cm},clip, scale=0.2]{images/random_085_routine_085_reactive_085".png}
+\caption{Reactive agent with discount factor = 0.85 (green) against random dummy agent with discount factor = 0.85 (blue) and routine dummy agent with discount factor = 0.85 (red)}
 \label{reactive vs dummies a}
 \end{subfigure}
 \hfill
 \begin{subfigure}[t]{0.47\textwidth}
 \captionsetup{width=1.0\textwidth}
-\includegraphics[trim={0cm 0cm 0cm 0cm},clip, scale=0.2]{images/"reactive_099_routine_100_random_100".png}
-\caption{Reactive agent, discount factor = 0.99 (green) against random dummy agent, discount factor = 1.0 (blue) and routine dummy agent, discount factor = 1.0 (red)}
+\includegraphics[trim={0cm 0cm 0cm 0cm},clip, scale=0.2]{images/"random_100_routine_100_reactive_099_reactive_050_routine_050_random_050".png}
+\caption{Reactive agent with discount factor = 0.99 (green) against another reactive agent with discount factor = 0.5 (yellow), 
+a random agent with discount factor = 1.0 (blue),
+a dummy agent with discount factor = 1.0 (red),
+a dummy agent with discount factor = 0.5 (magenta) and 
+a random agent with discount factor = 0.5 (cyan)}
 \label{reactive vs dummies b}
 \end{subfigure}
-\caption{Reactive agent performance compared to dummy agents performances}
+\caption{Reactive agents performance compared to dummy agents performance}
 \label{reactive vs dummies}
 \end{figure}
 
+\noindent
 The reactive agent displays a higher performance than both the routine dummy agent and the random dummy agent when the discount factor respectively the probability they accept an available task is 0.85 for all three agents.
 Although the reward per km of both dummy agents fluctuates over time, their performance is rather similar in this case (Figure \ref{reactive vs dummies a}).
-When both the random dummy agent and the routine dummy agent systematically accept an available task, the reactive agent still performs better than the two other, although the routine agent now has a higher average reward per km than the random agent (Figure \ref{reactive vs dummies b}).
 
+When both the random dummy agent and the routine dummy agent systematically accept an available task, the reactive agent with discount factor 0.99 as well as the one with discount factor 0.5 still perform better.
+It is the random agent which accepts tasks with probability 0.5 which displays the lowest performance, but the random agent which systematically accepts task turns out to have a reward per km rather close to the one of the reactive agent with discount factor 0.5 (Figure \ref{reactive vs dummies b}).\\
 
-
+\noindent
+In the long run, a high discount factor tends to increase the reward per km of a reactive agent, since this agent seeks an optimal strategy that gives an important weight to the future.
+On the other hand, the performance of a reactive agent with a low discount factor, which optimizes for immediate rewards, comes close to the one of a random agent which systematically accepts tasks. The learning performed beforehand by a reactive agent still gives him a slight advantage over a random agent though.
 
 \end{document}

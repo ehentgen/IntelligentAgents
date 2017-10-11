@@ -1,15 +1,15 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2016.3.19)  8 OCT 2017 21:37
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2016.3.19)  10 OCT 2017 21:30
 entering extended mode
 **report_reactive.tex
 
-("C:\Users\Emily\Documents\EPFL\5ème année\Semestre III\Intelligent Agents\02
- - Reactive Agent\doc\report_reactive.tex"
+("C:\Users\Emily\Documents\EPFL\5ème année\Semestre III\Intelligent Agents\re
+active\IntelligentAgents\lab2\doc\report_reactive.tex"
 LaTeX2e <2015/10/01> patch level 2
 Babel <3.9n> and hyphenation patterns for 69 languages loaded.
 ("C:\Users\Emily\AppData\Local\Programs\MiKTeX 2.9\tex\latex\base\article.cls"
 Document Class: article 2014/09/29 v1.4h Standard LaTeX document class
-("C:\Users\Emily\AppData\Local\Programs\MiKTeX 2.9\tex\latex\base\size11.clo"
-File: size11.clo 2014/09/29 v1.4h Standard LaTeX file (size option)
+("C:\Users\Emily\AppData\Local\Programs\MiKTeX 2.9\tex\latex\base\size10.clo"
+File: size10.clo 2014/09/29 v1.4h Standard LaTeX file (size option)
 )
 \c@part=\count79
 \c@section=\count80
@@ -242,27 +242,82 @@ Document Style algorithmicx 1.2 - a greatly improved `algorithmic' style
 )
 Document Style - pseudocode environments for use with the `algorithmicx' style
 )
-("C:\Users\Emily\Documents\EPFL\5ème année\Semestre III\Intelligent Agents\02
- - Reactive Agent\doc\report_reactive.aux")
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 16.
-LaTeX Font Info:    Try loading font information for TS1+cmr on input line 16.
+("C:\Users\Emily\AppData\Local\Programs\MiKTeX 2.9\tex\latex\graphics\graphicx.
+sty"
+Package: graphicx 2014/10/28 v1.0g Enhanced LaTeX Graphics (DPC,SPQR)
+
+("C:\Users\Emily\AppData\Local\Programs\MiKTeX 2.9\tex\latex\graphics\graphics.
+sty"
+Package: graphics 2014/10/28 v1.0p Standard LaTeX Graphics (DPC,SPQR)
+
+("C:\Users\Emily\AppData\Local\Programs\MiKTeX 2.9\tex\latex\graphics\trig.sty"
+Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
+)
+("C:\Users\Emily\AppData\Local\Programs\MiKTeX 2.9\tex\latex\00miktex\graphics.
+cfg"
+File: graphics.cfg 2007/01/18 v1.5 graphics configuration of teTeX/TeXLive
+)
+Package graphics Info: Driver file: pdftex.def on input line 94.
+
+("C:\Users\Emily\AppData\Local\Programs\MiKTeX 2.9\tex\latex\pdftex-def\pdftex.
+def"
+File: pdftex.def 2011/05/27 v0.06d Graphics/color for pdfTeX
+
+("C:\Users\Emily\AppData\Local\Programs\MiKTeX 2.9\tex\generic\oberdiek\infware
+rr.sty"
+Package: infwarerr 2010/04/08 v1.3 Providing info/warning/error messages (HO)
+)
+("C:\Users\Emily\AppData\Local\Programs\MiKTeX 2.9\tex\generic\oberdiek\ltxcmds
+.sty"
+Package: ltxcmds 2011/11/09 v1.22 LaTeX kernel commands for general use (HO)
+)
+\Gread@gobject=\count111
+))
+\Gin@req@height=\dimen120
+\Gin@req@width=\dimen121
+) ("C:\Program Files\MiKTeX 2.9\tex\latex\caption\caption.sty"
+Package: caption 2013/05/02 v3.3-89 Customizing captions (AR)
+
+("C:\Program Files\MiKTeX 2.9\tex\latex\caption\caption3.sty"
+Package: caption3 2013/05/02 v1.6-88 caption3 kernel (AR)
+Package caption3 Info: TeX engine: e-TeX on input line 57.
+\captionmargin=\dimen122
+\captionmargin@=\dimen123
+\captionwidth=\dimen124
+\caption@tempdima=\dimen125
+\caption@indent=\dimen126
+\caption@parindent=\dimen127
+\caption@hangindent=\dimen128
+)
+\c@ContinuedFloat=\count112
+Package caption Info: float package is loaded.
+)
+("C:\Program Files\MiKTeX 2.9\tex\latex\caption\subcaption.sty"
+Package: subcaption 2013/02/03 v1.1-62 Sub-captions (AR)
+\c@subfigure=\count113
+\c@subtable=\count114
+)
+("C:\Users\Emily\Documents\EPFL\5ème année\Semestre III\Intelligent Agents\re
+active\IntelligentAgents\lab2\doc\report_reactive.aux")
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 22.
+LaTeX Font Info:    Try loading font information for TS1+cmr on input line 22.
 
 ("C:\Users\Emily\AppData\Local\Programs\MiKTeX 2.9\tex\latex\base\ts1cmr.fd"
 File: ts1cmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
-LaTeX Font Info:    ... okay on input line 16.
+LaTeX Font Info:    ... okay on input line 22.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -283,12 +338,12 @@ LaTeX Font Info:    ... okay on input line 16.
 * \topmargin=-51.45378pt
 * \headheight=12.0pt
 * \headsep=25.0pt
-* \topskip=11.0pt
+* \topskip=10.0pt
 * \footskip=30.0pt
-* \marginparwidth=59.0pt
-* \marginparsep=10.0pt
+* \marginparwidth=65.0pt
+* \marginparsep=11.0pt
 * \columnsep=10.0pt
-* \skip\footins=10.0pt plus 4.0pt minus 2.0pt
+* \skip\footins=9.0pt plus 4.0pt minus 2.0pt
 * \hoffset=0.0pt
 * \voffset=0.0pt
 * \mag=1000
@@ -298,43 +353,120 @@ LaTeX Font Info:    ... okay on input line 16.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-LaTeX Font Info:    Try loading font information for OML+cmr on input line 42.
-("C:\Users\Emily\AppData\Local\Programs\MiKTeX 2.9\tex\latex\base\omlcmr.fd"
+("C:\Program Files\MiKTeX 2.9\tex\context\base\supp-pdf.mkii"
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count115
+\scratchdimen=\dimen129
+\scratchbox=\box30
+\nofMPsegments=\count116
+\nofMParguments=\count117
+\everyMPshowfont=\toks24
+\MPscratchCnt=\count118
+\MPscratchDim=\dimen130
+\MPnumerator=\count119
+\makeMPintoPDFobject=\count120
+\everyMPtoPDFconversion=\toks25
+)
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: End \AtBeginDocument code.
+LaTeX Font Info:    Try loading font information for OML+cmr on input line 48.
+ ("C:\Users\Emily\AppData\Local\Programs\MiKTeX 2.9\tex\latex\base\omlcmr.fd"
 File: omlcmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
-LaTeX Font Info:    Font shape `OML/cmr/m/it' in size <10.95> not available
-(Font)              Font shape `OML/cmm/m/it' tried instead on input line 42.
-
+LaTeX Font Info:    Font shape `OML/cmr/m/it' in size <10> not available
+(Font)              Font shape `OML/cmm/m/it' tried instead on input line 48.
 [1
 
-{C:/Users/Emily/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}] [2]
-[3]
-("C:\Users\Emily\Documents\EPFL\5ème année\Semestre III\Intelligent Agents\02
- - Reactive Agent\doc\report_reactive.aux") ) 
+{C:/Users/Emily/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}]
+<images/"reactive_discount_factor_099_050_000".png, id=12, 1204.5pt x 630.10406
+pt>
+File: images/"reactive_discount_factor_099_050_000".png Graphic file (type png)
+
+ <use images/"reactive_discount_factor_099_050_000".png>
+Package pdftex.def Info: images/"reactive_discount_factor_099_050_000".png used
+ on input line 116.
+(pdftex.def)             Requested size: 240.89574pt x 126.01857pt.
+
+Overfull \hbox (6.52373pt too wide) in paragraph at lines 116--117
+[][] 
+ []
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[2]
+
+LaTeX Warning: File `images/random_085_routine_085_reactive_085".png' not found
+ on input line 143.
+
+
+<images/random_085_routine_085_reactive_085".png, id=20, 1200.73593pt x 629.351
+26pt>
+File: images/random_085_routine_085_reactive_085".png Graphic file (type png)
+ <use images/random_085_routine_085_reactive_085".png>
+Package pdftex.def Info: images/random_085_routine_085_reactive_085".png used o
+n input line 143.
+(pdftex.def)             Requested size: 240.14293pt x 125.86801pt.
+
+Overfull \hbox (5.77092pt too wide) in paragraph at lines 143--144
+[][] 
+ []
+
+
+<images/"random_100_routine_100_reactive_099_reactive_050_routine_050_random_05
+0".png, id=22, 1203.7472pt x 630.10406pt>
+File: images/"random_100_routine_100_reactive_099_reactive_050_routine_050_rand
+om_050".png Graphic file (type png)
+
+<use images/"random_100_routine_100_reactive_099_reactive_050_routine_050_rando
+m_050".png>
+Package pdftex.def Info: images/"random_100_routine_100_reactive_099_reactive_0
+50_routine_050_random_050".png used on input line 150.
+(pdftex.def)             Requested size: 240.74516pt x 126.01857pt.
+
+Overfull \hbox (6.37315pt too wide) in paragraph at lines 150--155
+[][] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 166--168
+
+ []
+
+[3 <C:/Users/Emily/Documents/EPFL/5ème année/Semestre III/Intelligent Agents/
+reactive/IntelligentAgents/lab2/doc/images/reactive_discount_factor_099_050_000
+.png> <C:/Users/Emily/Documents/EPFL/5ème année/Semestre III/Intelligent Agen
+ts/reactive/IntelligentAgents/lab2/doc/images/random_085_routine_085_reactive_0
+85.png> <C:/Users/Emily/Documents/EPFL/5ème année/Semestre III/Intelligent Ag
+ents/reactive/IntelligentAgents/lab2/doc/images/random_100_routine_100_reactive
+_099_reactive_050_routine_050_random_050.png>]
+("C:\Users\Emily\Documents\EPFL\5ème année\Semestre III\Intelligent Agents\re
+active\IntelligentAgents\lab2\doc\report_reactive.aux") ) 
 Here is how much of TeX's memory you used:
- 2479 strings out of 493643
- 35197 string characters out of 3135409
- 99743 words of memory out of 3000000
- 5860 multiletter control sequences out of 15000+200000
- 11299 words of font info for 40 fonts, out of 3000000 for 9000
+ 4452 strings out of 493643
+ 67963 string characters out of 3135409
+ 136930 words of memory out of 3000000
+ 7794 multiletter control sequences out of 15000+200000
+ 10314 words of font info for 37 fonts, out of 3000000 for 9000
  1025 hyphenation exceptions out of 8191
- 27i,6n,20p,427b,292s stack positions out of 5000i,500n,10000p,200000b,50000s
- <C:\Users\Emily\AppData\Local\MiK
-TeX\2.9\fonts\pk\ljfour\jknappen\ec\dpi600\tcrm1200.pk><C:/Users/Emily/AppData/
-Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Users/E
-mily/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pf
-b><C:/Users/Emily/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts
-/cm/cmcsc10.pfb><C:/Users/Emily/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/p
-ublic/amsfonts/cm/cmmi10.pfb><C:/Users/Emily/AppData/Local/Programs/MiKTeX 2.9/
-fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/Emily/AppData/Local/Programs
-/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/Emily/AppData/Lo
-cal/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr9.pfb><C:/Users/Emily
-/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C
-:/Users/Emily/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/
-cmti10.pfb>
-Output written on report_reactive.pdf (3 pages, 128498 bytes).
+ 36i,8n,38p,487b,430s stack positions out of 5000i,500n,10000p,200000b,50000s
+ <C:\Users\Emily\AppDa
+ta\Local\MiKTeX\2.9\fonts\pk\ljfour\jknappen\ec\dpi600\tcrm1200.pk><C:/Users/Em
+ily/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx10.pfb
+><C:/Users/Emily/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/
+cm/cmbx12.pfb><C:/Users/Emily/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/pub
+lic/amsfonts/cm/cmcsc10.pfb><C:/Users/Emily/AppData/Local/Programs/MiKTeX 2.9/f
+onts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Users/Emily/AppData/Local/Programs
+/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/Emily/AppData/Lo
+cal/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/Emil
+y/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:
+/Users/Emily/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/c
+mr8.pfb><C:/Users/Emily/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/am
+sfonts/cm/cmsy10.pfb><C:/Users/Emily/AppData/Local/Programs/MiKTeX 2.9/fonts/ty
+pe1/public/amsfonts/cm/cmti10.pfb>
+Output written on report_reactive.pdf (3 pages, 425797 bytes).
 PDF statistics:
- 53 PDF objects out of 1000 (max. 8388607)
+ 66 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
- 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 34 words of extra memory for PDF output out of 10000 (max. 10000000)
 
