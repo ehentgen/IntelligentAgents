@@ -57,6 +57,38 @@ public class ReactiveTemplate implements ReactiveBehavior {
 		System.out.println("Strategy learned");
 		System.out.println("Setup completed");
 	}
+	
+	@Override
+	public Action act(Vehicle vehicle, Task availableTask) {
+		// The agent applies its learned strategy here
+
+		Action action;
+		template.Action bestAction;
+		City currentCity = vehicle.getCurrentCity();
+
+		//If there is a task in the present city :
+		if (availableTask != null && availableTask.pickupCity == currentCity) {
+			State state = new State(currentCity, availableTask.deliveryCity);
+			bestAction = bestActions.get(state); //Get the best action for this state
+
+			//Execute the action :
+			if (bestAction.isPickUpTask()) {action = new Pickup(availableTask);} 
+			else {action = new Move(bestAction.cityTo());}
+			
+		} else {
+			State state = new State(currentCity, null);
+			bestAction = bestActions.get(state);
+			action = new Move(bestAction.cityTo());
+		}
+
+		if (numActions >= 1) {
+			System.out.println(name() + " -- The total profit after " + numActions + " actions is " + myAgent.getTotalProfit()
+					+ " (average profit: " + (myAgent.getTotalProfit() / (double) numActions) + ")");
+		}
+		numActions++;
+		
+		return action;
+	}
 
 	@Override
 	public Action act(Vehicle vehicle, Task availableTask) {
@@ -110,6 +142,7 @@ public class ReactiveTemplate implements ReactiveBehavior {
 		for (City cityFrom : allCities) {
 			List<State> states = new ArrayList<State>();
 
+
 			// Firstly : Create a state for with a task for cityFrom -> any
 			// city.
 			for (City cityTo : allCities) {
@@ -126,6 +159,11 @@ public class ReactiveTemplate implements ReactiveBehavior {
 			}
 
 			// Secondly : Create another state without any task in cityFrom
+				bestValues.put(stateWithTask, (double) -Double.MAX_VALUE); //instantiate with very low score...
+				}
+			}
+			
+			//Secondly : Create another state without any task in cityFrom 
 			State stateWithoutTask = new State(cityFrom, null);
 			allStates.add(stateWithoutTask);
 			states.add(stateWithoutTask);
@@ -177,8 +215,8 @@ public class ReactiveTemplate implements ReactiveBehavior {
 
 		for (State state : allStates) {
 			double probability = 0;
-			if (state.hasAvailableTask()) { // can replace by
-											// (state.destinationCity() != null)
+
+			if (state.hasAvailableTask()) {
 				probability = taskDistribution.probability(state.currentCity(), state.destinationCity());
 			} else {
 				probability = taskDistribution.probability(state.currentCity(), null);
@@ -233,7 +271,7 @@ public class ReactiveTemplate implements ReactiveBehavior {
 
 	/**
 	 * Getter for the name of an agent
-	 * 
+	 *
 	 * @return the name of the agent
 	 */
 	private String name() {

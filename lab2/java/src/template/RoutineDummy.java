@@ -32,16 +32,15 @@ public class DummyTemplate implements ReactiveBehavior {
 				0.95);
 
 		this.random = new Random();
-		if (Math.abs(discount) > 1) {
+		if (Math.abs(discount) >=1) {
 			this.pPickup = 0.95;
-			System.out.println("Discount factor must be in [0;1]. Default is 0.95");
+			System.out.println("Discount factor must be in [0;1). Default is 0.95");
 		} else {
 			this.pPickup = discount;
 		}
 		this.numActions = 0;
 		this.myAgent = agent;
 		
-		// no learning strategy, but creates a fixed default itinerary between cities
 		System.out.println("--- " + name() + " ---");
 		itinerary = createItinerary(topology);
 		System.out.println("Setup completed");
@@ -62,9 +61,6 @@ public class DummyTemplate implements ReactiveBehavior {
 
 	@Override
 	public Action act(Vehicle vehicle, Task availableTask) {
-		// The dummy agent always picks up a task if it is available, and
-		// otherwise moves between cities according to the same (randomly)
-		// predefined path
 		Action action;
 
 		if (availableTask == null || random.nextDouble() > pPickup) {

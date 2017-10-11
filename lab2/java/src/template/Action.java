@@ -10,9 +10,8 @@ public class Action {
 
 	/**
 	 * 
-	 * @param pickUpTask_
-	 *            : whether a task is accepted during this action
-	 * @param cityFrom_
+	 * @param pickUpTask_ : whether a task is accepted during this action
+	 * @param cityFrom_ 
 	 * @param cityTo_
 	 */
 	public Action(boolean pickUpTask_, City cityFrom_, City cityTo_) {
@@ -22,7 +21,8 @@ public class Action {
 	}
 
 	/*
-	 * ========================== ==== Getters & others ====
+	 * ==========================
+	 * ==== Getters & others ====
 	 * ==========================
 	 */
 	public City cityFrom() {
