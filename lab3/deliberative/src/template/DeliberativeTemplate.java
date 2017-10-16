@@ -17,7 +17,7 @@ import logist.topology.Topology.City;
 @SuppressWarnings("unused")
 public class DeliberativeTemplate implements DeliberativeBehavior {
 
-	enum Algorithm {BFS, ASTAR}
+	enum Algorithm {BFS, ASTAR, NAIVE}
 	
 	/* Environment */
 	Topology topology;
@@ -38,7 +38,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 		
 		// initialize the planner
 		int capacity = agent.vehicles().get(0).capacity();
-		String algorithmName = agent.readProperty("algorithm", String.class, "ASTAR");
+		String algorithmName = agent.readProperty("algorithm", String.class, "NAIVE");
 		
 		// Throws IllegalArgumentException if algorithm is unknown
 		algorithm = Algorithm.valueOf(algorithmName.toUpperCase());
@@ -54,18 +54,45 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 		switch (algorithm) {
 		case ASTAR:
 			// ...
+			System.out.println("Running ASTAR Algo");
 			plan = naivePlan(vehicle, tasks);
 			break;
 		case BFS:
 			// ...
-			plan = naivePlan(vehicle, tasks);
+			System.out.println("Running BFS Algo");
+			plan = bfsPlan(vehicle, tasks);
 			break;
+		case NAIVE:
+			plan = naivePlan(vehicle, tasks);
+			break;			
 		default:
 			throw new AssertionError("Should not happen.");
 		}		
 		return plan;
 	}
 	
+	/**
+	 * -> Q represents the states we still have to go through <br>
+	 * -> C represents the states we already go through, and don't want to cycle through (again) <br>
+	 * -> n is just a state <br>
+	 * 
+	 * @param vehicle
+	 * @param tasks
+	 * @return
+	 */
+	private Plan bfsPlan(Vehicle vehicle, TaskSet tasks) {
+		DeliberativeState Q = new DeliberativeState(tasks, null, vehicle.getCurrentCity()); // initial node
+		
+		
+		
+		return buildPlan();
+	}
+	
+	private Plan buildPlan() {
+		Plan p = new Plan(null);
+		return p;
+	}
+
 	private Plan naivePlan(Vehicle vehicle, TaskSet tasks) {
 		City current = vehicle.getCurrentCity();
 		Plan plan = new Plan(current);
