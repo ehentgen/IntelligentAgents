@@ -2,6 +2,11 @@ package template;
 
 /* import table */
 import logist.simulation.Vehicle;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import cern.colt.Arrays;
 import logist.agent.Agent;
 import logist.behavior.DeliberativeBehavior;
 import logist.plan.Plan;
@@ -10,6 +15,7 @@ import logist.task.TaskDistribution;
 import logist.task.TaskSet;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
+
 
 /**
  * An optimal planner for one vehicle.
@@ -76,13 +82,43 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 	 * -> C represents the states we already go through, and don't want to cycle through (again) <br>
 	 * -> n is just a state <br>
 	 * 
+	 * More than a state-based BFS, this function should keep track of the best path, in order to compute the plan afterwards.<br>
+	 * the best way of doing it is probably to keep this in the state itself as a List\Action\ (how did I come here?)
+	 * 
 	 * @param vehicle
 	 * @param tasks
 	 * @return
 	 */
 	private Plan bfsPlan(Vehicle vehicle, TaskSet tasks) {
-		DeliberativeState Q = new DeliberativeState(tasks, null, vehicle.getCurrentCity()); // initial node
+		List<DeliberativeState> Q = null;
+		Q.add(new DeliberativeState(tasks, null, vehicle.getCurrentCity(), null)); // initial node
 		
+		List<DeliberativeState> loopCheck = null;
+		List<DeliberativeState> S = null;
+		DeliberativeState n;
+		
+		
+		while (!Q.isEmpty()) {
+			/* n <- first elem of Q && Q <- rest(Q) */
+			n = Q.remove(0);
+			
+			if (n.isFinalState())
+				System.out.println("Return n. To implement"); //TODO
+			
+			if (!loopCheck.contains(n)) { //?? only null?
+				loopCheck.add(n);
+				
+				/* S <- successors(n) */
+				S = (n.getSuccessors());
+			}
+			
+			Q.addAll(S);
+			
+			/* if Q is empty, return Failure */
+			if (Q.isEmpty())
+				System.out.println("Q is empty ! Error in BFS!");
+				System.exit(0);
+		}
 		
 		
 		return buildPlan();
@@ -90,6 +126,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 	
 	private Plan buildPlan() {
 		Plan p = new Plan(null);
+		//TODO
 		return p;
 	}
 
