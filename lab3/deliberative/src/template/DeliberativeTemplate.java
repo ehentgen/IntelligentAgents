@@ -17,7 +17,7 @@ import logist.topology.Topology.City;
 @SuppressWarnings("unused")
 public class DeliberativeTemplate implements DeliberativeBehavior {
 
-	enum Algorithm { BFS, ASTAR }
+	enum Algorithm {BFS, ASTAR}
 	
 	/* Environment */
 	Topology topology;
