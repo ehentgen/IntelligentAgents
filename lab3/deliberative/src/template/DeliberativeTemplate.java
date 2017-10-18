@@ -102,16 +102,16 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 
 	// initialize the starting state of the BFS algorithm
 	List<DeliberativeState> Q = new ArrayList<DeliberativeState>();
-	Set<Task> notPickedUpTasks = tasks;
-	Set<Task> pickUpTasks = new HashSet<Task>();
-	Set<Task> deliveredTasks = new HashSet<Task>();
+	Set<Task> notPickedUpTasks = new HashSet<Task>(tasks);
+	Set<Task> pickedUpTasks = new HashSet<Task>();
+
 	DeliberativeState initialState = new DeliberativeState(
-		notPickedUpTasks, pickUpTasks, deliveredTasks,
-		vehicle.getCurrentCity(), 0, 0, null); // initial node
+		notPickedUpTasks, pickedUpTasks, vehicle.getCurrentCity(), 0,
+		0, 0, null); // initial node
 	Q.add(initialState);
 
-	List<DeliberativeState> loopCheck = new ArrayList<DeliberativeState>();
-	List<DeliberativeState> S = null;
+	Set<DeliberativeState> loopCheck = new HashSet<DeliberativeState>();
+	Set<DeliberativeState> S = null;
 	DeliberativeState currentState;
 
 	// stores the final cost in the agent's plan resulting from the BFS
@@ -120,6 +120,9 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 	// stores the final state in the agent's plan resulting from the BFS
 	// algorithm
 	DeliberativeState finalState = null;
+
+	int number_of_iterations = 0;
+	double number_of_states = 0;
 
 	while (!Q.isEmpty()) {
 	    /* n <- first elem of Q && Q <- rest(Q) */
@@ -131,6 +134,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 		if (currentState.cost() < minimumCost) {
 		    minimumCost = currentState.cost();
 		    finalState = currentState;
+		    System.out.println("min cost:" + minimumCost);
 		}
 	    }
 
@@ -138,16 +142,18 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 		loopCheck.add(currentState);
 		/* S <- successors(n) */
 		S = currentState.getSuccessors(agent);
+
+		Q.addAll(S);
 	    }
 
-	    Q.addAll(S);
-
-	    // blah?
-	    /* if Q is empty, return Failure */
-	    // if (Q.isEmpty())
-	    // System.out.println("Q is empty ! Error in BFS!");
-	    // System.exit(0);
+	    if (Q.size() > number_of_states) {
+		number_of_states = Q.size();
+	    }
+	    ++number_of_iterations;
 	}
+
+	System.out.println("np states: " + number_of_states);
+	System.out.println("no iterations: " + number_of_iterations);
 
 	return buildPlan(finalState);
     }
@@ -159,6 +165,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 	for (Action action : actions) {
 	    plan.append(action);
 	}
+	System.out.println(plan.toString());
 	return plan;
     }
 
@@ -182,6 +189,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 	    // set current city
 	    current = task.deliveryCity;
 	}
+
 	return plan;
     }
 

@@ -24,7 +24,6 @@ public class DeliberativeState {
 
     private Set<Task> notPickedUpTasks;
     private Set<Task> pickedUpTasks;
-    private Set<Task> deliveredTasks;
 
     private List<Action> actionsPerformed;
 
@@ -33,18 +32,20 @@ public class DeliberativeState {
     private double cost;
     private double charge;
 
+    private double reward;
+
     public DeliberativeState(Set<Task> notPickedUpTasks,
-	    Set<Task> pickedUpTasks, Set<Task> deliveredTasks, City departure,
-	    double charge, double cost, List<Action> wayToHere) {
+	    Set<Task> pickedUpTasks, City departure, double charge,
+	    double cost, double reward, List<Action> wayToHere) {
 
 	this.notPickedUpTasks = notPickedUpTasks;
-
 	this.pickedUpTasks = pickedUpTasks;
-	this.deliveredTasks = deliveredTasks;
 
 	this.departure = departure;
 	this.cost = cost;
 	this.charge = charge;
+
+	this.reward = reward;
 
 	// This will be super-useful in order to find how to reach the best
 	// state
@@ -55,13 +56,16 @@ public class DeliberativeState {
 	}
     }
 
-    public List<DeliberativeState> getSuccessors(Agent agent) {
-	List<DeliberativeState> nextPossibleStates = new ArrayList<DeliberativeState>();
+    public Set<DeliberativeState> getSuccessors(Agent agent) {
+	Set<DeliberativeState> nextPossibleStates = new HashSet<DeliberativeState>();
 
 	double costPerKm = agent.vehicles().get(0).costPerKm();
 	double currentCost = cost;
 
 	for (Task task : notPickedUpTasks) {
+	    List<Action> newActionsPerformed = new ArrayList<Action>(
+		    actionsPerformed);
+
 	    double updatedCharge = charge + task.weight;
 
 	    // in the next state, try picking up task, if possible
@@ -72,7 +76,7 @@ public class DeliberativeState {
 		newNotPickedUpTasks.remove(task);
 
 		// and add it to the picked up tasks list
-		Set<Task> newPickedUpTasks = new HashSet<Task>(deliveredTasks);
+		Set<Task> newPickedUpTasks = new HashSet<Task>(pickedUpTasks);
 		newPickedUpTasks.add(task);
 
 		double updatedCost = currentCost
@@ -80,46 +84,48 @@ public class DeliberativeState {
 
 		City destination = task.pickupCity;
 
-		DeliberativeState s = new DeliberativeState(
-			newNotPickedUpTasks, newPickedUpTasks, deliveredTasks,
-			destination, updatedCharge, updatedCost,
-			actionsPerformed);
-		nextPossibleStates.add(s);
-
 		List<City> path = departure.pathTo(destination);
 		for (City city : path) {
-		    actionsPerformed.add(new Move(city));
+		    newActionsPerformed.add(new Move(city));
 		}
-		actionsPerformed.add(new Pickup(task));
+		newActionsPerformed.add(new Pickup(task));
+
+		DeliberativeState s = new DeliberativeState(
+			newNotPickedUpTasks, newPickedUpTasks, destination,
+			updatedCharge, updatedCost, reward, newActionsPerformed);
+		nextPossibleStates.add(s);
 	    }
 
 	}
 
 	for (Task task : pickedUpTasks) {
+	    List<Action> newActionsPerformed = new ArrayList<Action>(
+		    actionsPerformed);
+
 	    // remove the picked up but not yet delivered task
 	    Set<Task> newPickedUpTasks = new HashSet<Task>(pickedUpTasks);
 	    newPickedUpTasks.remove(task);
-
-	    // and add it to the delivered tasks set
-	    Set<Task> newDeliveredTasks = new HashSet<Task>(deliveredTasks);
-	    newDeliveredTasks.add(task);
 
 	    double updatedCharge = charge - task.weight;
 	    double updatedCost = currentCost
 		    + departure.distanceTo(task.deliveryCity) * costPerKm;
 
-	    City destination = task.deliveryCity;
+	    double updatedReward = reward + task.reward;
 
-	    DeliberativeState s = new DeliberativeState(notPickedUpTasks,
-		    newPickedUpTasks, newDeliveredTasks, destination,
-		    updatedCharge, updatedCost, actionsPerformed);
-	    nextPossibleStates.add(s);
+	    City destination = task.deliveryCity;
 
 	    List<City> path = departure.pathTo(destination);
 	    for (City city : path) {
-		actionsPerformed.add(new Move(city));
+		newActionsPerformed.add(new Move(city));
 	    }
-	    actionsPerformed.add(new Delivery(task));
+	    newActionsPerformed.add(new Delivery(task));
+
+	    DeliberativeState s = new DeliberativeState(new HashSet<Task>(
+		    notPickedUpTasks), newPickedUpTasks, destination,
+		    updatedCharge, updatedCost, updatedReward,
+		    newActionsPerformed);
+	    nextPossibleStates.add(s);
+
 	}
 
 	return nextPossibleStates;
@@ -136,11 +142,7 @@ public class DeliberativeState {
      * @return
      */
     public double getGain() {
-	double rewardSum = 0;
-	for (Task task : deliveredTasks) {
-	    rewardSum += task.reward;
-	}
-	return rewardSum;
+	return reward;
     }
 
     // => There is only one possible final state.
