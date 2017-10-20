@@ -1,14 +1,16 @@
-package template;
+package templateJT;
 
 /* import table */
 import logist.simulation.Vehicle;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import cern.colt.Arrays;
 import logist.agent.Agent;
 import logist.behavior.DeliberativeBehavior;
+import logist.plan.Action;
 import logist.plan.Plan;
 import logist.task.Task;
 import logist.task.TaskDistribution;
@@ -32,6 +34,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 	/* the properties of the agent */
 	Agent agent;
 	int capacity;
+	int maxStates = 0;
 
 	/* the planning class */
 	Algorithm algorithm;
@@ -55,6 +58,8 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 	@Override
 	public Plan plan(Vehicle vehicle, TaskSet tasks) {
 		Plan plan;
+		
+		long startTime = System.currentTimeMillis();
 
 		// Compute the plan with the selected algorithm.
 		switch (algorithm) {
@@ -74,6 +79,13 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 		default:
 			throw new AssertionError("Should not happen.");
 		}		
+		System.out.println(plan.toString());
+		System.out.println("Total distance : " + plan.totalDistance());
+		System.out.println("Max # of states : " + maxStates);
+		
+		long endTime = System.currentTimeMillis();
+		System.out.println("Time to compute: " + (endTime - startTime) / 1000.0 + " sec");
+		
 		return plan;
 	}
 	
@@ -90,44 +102,64 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 	 * @return
 	 */
 	private Plan bfsPlan(Vehicle vehicle, TaskSet tasks) {
-		List<DeliberativeState> Q = null;
-		Q.add(new DeliberativeState(tasks, null, vehicle.getCurrentCity(), null)); // initial node
 		
-		List<DeliberativeState> loopCheck = null;
-		List<DeliberativeState> S = null;
+		List<DeliberativeState> Q = new ArrayList<DeliberativeState>();
+		//Q.add(new DeliberativeState(tasks, null, vehicle.getCurrentCity(), null)); // initial node
+		TaskSet empty = TaskSet.copyOf(tasks);
+		empty.removeAll(tasks);
+		
+		Q.add(new DeliberativeState(tasks, empty, vehicle.getCurrentCity(), null, 0, 0)); // initial node
+		
+		HashSet<DeliberativeState> loopCheck = new HashSet<DeliberativeState>();
+		List<DeliberativeState> S = new ArrayList<DeliberativeState>();
 		DeliberativeState n;
+		DeliberativeState finalState = null;
 		
+		Double minimumCost = Double.MAX_VALUE;
 		
 		while (!Q.isEmpty()) {
+
+			if (maxStates < Q.size()) maxStates = Q.size();
+			
 			/* n <- first elem of Q && Q <- rest(Q) */
 			n = Q.remove(0);
 			
-			if (n.isFinalState())
-				System.out.println("Return n. To implement"); //TODO
+			if (n.isFinalState()) {
+				//System.out.println("New final state"); //TODO
+				double cost = n.getCost();
+				if (cost < minimumCost) {
+					minimumCost = cost;
+					finalState = n;
+				}
+				//break;
+			}
 			
-			if (!loopCheck.contains(n)) { //?? only null?
+			if (!loopCheck.contains(n)) {
 				loopCheck.add(n);
-				
 				/* S <- successors(n) */
-				S = (n.getSuccessors());
+				S = (n.getSuccessors(agent));
 			}
 			
 			Q.addAll(S);
 			
 			/* if Q is empty, return Failure */
 			if (Q.isEmpty())
-				System.out.println("Q is empty ! Error in BFS!");
-				System.exit(0);
+				System.out.println("End of BFS.");
+				//System.exit(0);
 		}
 		
 		
-		return buildPlan();
+		return buildPlan(finalState);
 	}
 	
-	private Plan buildPlan() {
-		Plan p = new Plan(null);
-		//TODO
-		return p;
+	private Plan buildPlan(DeliberativeState state) {
+		City initialCity = agent.vehicles().get(0).getCurrentCity();
+		Plan plan = new Plan(initialCity);
+		List<Action> actions = state.actionsPerformed();
+		for (Action action : actions) {
+			plan.append(action);
+		}
+		return plan;
 	}
 
 	private Plan naivePlan(Vehicle vehicle, TaskSet tasks) {
