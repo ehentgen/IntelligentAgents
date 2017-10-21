@@ -1,18 +1,23 @@
-\documentclass[11pt]{article}
+\documentclass[10pt]{article}
 
 \usepackage{amsmath}
 \usepackage{textcomp}
-
+\usepackage[top=0.8in, bottom=0.8in, left=0.8in, right=0.8in]{geometry}
 % Add other packages here %
-
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{float}
+\usepackage[pdftex]{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage[font=scriptsize]{subcaption}
+\usepackage[font=scriptsize]{caption}
 
 % Put your group number and names in the author field %
 \title{\bf Excercise 3\\ Implementing a deliberative Agent}
-\author{Group \textnumero : Student 1, Student 2}
-
+\author{Group \textnumero 23: Jean-Thomas FURRER, Emily HENTGEN}
 
 % N.B.: The report should not be longer than 3 pages %
-
 
 \begin{document}
 \maketitle
@@ -21,31 +26,128 @@
 
 \subsection{Intermediate States}
 % Describe the state representation %
+In our model, a state is characterized by the following six attributes:
+\begin{itemize}
+\itemsep 0mm
+\item[\textendash]int[] \textbf{tasksStatus}: keeps track of whether each task has not been picked up yet, has been picked up but not delivered, or has been delivered
+\item[\textendash]int \textbf{taskIndex}: the index of the task being currently handled in this state
+\item[\textendash]City \textbf{departure}: the current city where the agent's vehicle is
+\item[\textendash]double \textbf{cost}: the accumulated cost in this state
+\item[\textendash]double \textbf{charge}: the accumulated charge in this state
+\item[\textendash]State \textbf{previous}: the previous state the agent's vehicle was in
+\end{itemize}
 
 \subsection{Goal State}
 % Describe the goal state %
+A goal (or final) state is a state where all tasks have been delivered. For a given state, this can be checked using the \textit{tasksStatus} attribute.
 
 \subsection{Actions}
 % Describe the possible actions/transitions in your model %
-
+There are three possible actions in our model: moving from one city to a neighbouring city, picking up a task and delivering a task.
 
 \section{Implementation}
 
 \subsection{BFS}
 % Details of the BFS implementation %
+The main issue with the BFS algorithm is that the number of states grows exponentially with the number of tasks.
+The implementation must hence create states occupying few memory and each state visit must be as fast as possible.
+To this end, we use a \textit{LinkedList} for storing the the set of all states that are yet to be visited and \textit{HashSet}s for storing the successors of the current state as well as the set of all the already visited states.
+In the previous \textit{State} definition, we further use an array of \textit{int} for keeping track of each task status: it occupies few memory, and updating it induces less overhead than \textit{List}s or \textit{Set}s for instance storing the yet to be picked up/picked up but not yet delivered tasks.
+Following the same idea, instead of storing the complete list of actions that lead to the state, we store a reference to the previous state, which is less memory consuming.
+
+\begin{algorithm}[t]
+\caption{BFS}
+\begin{algorithmic}[1]
+\Statex \textsc{Input}
+\Statex \hspace{\algorithmicindent} Vehicle \textit{vehicle} \Comment{the agent's vehicle}
+\Statex \hspace{\algorithmicindent} TaskSet \textit{tasks} \Comment{the set of tasks to deliver}
+\Statex \textsc{Output}
+\Statex \hspace{\algorithmicindent} Plan \textit{plan} \Comment{the plan found by the BFS algorithm}
+
+\Statex	  
+\State $Q \gets \{initialState\}$, $S \gets \{\}$, $loopCheck \gets \{\}$
+\State $minimumCost \gets \infty$, $finalState \gets null$ 
+\While{$Q$ is not empty}
+	\State $currentState \gets Q.pop$
+	\If{$currentStat$ is a final state}
+		\If{$currentState.cost < minimumCost$}
+			\State $minimumCost \gets currentState.cost$
+			\State $finalState \gets currentState$
+		\EndIf
+	\EndIf
+	
+	\If{$loopCheck$ does not contain $currentState$}	
+		\State $loopCheck \gets loopCheck \cup \{currentState\}$
+		\State $S \gets currentState.successors$
+		\State $Q \gets Q \cup S$
+	\EndIf
+\EndWhile
+\Statex $plan \gets buildPlan(finalState, plan, tasks)$
+\State \Return $plan$
+\end{algorithmic}
+\end{algorithm}
+
+%\begin{algorithm}[t]
+%\caption{buildPlan}
+%\begin{algorithmic}[1]
+%\Statex \textsc{Input}
+%\Statex \hspace{\algorithmicindent} State \textit{state} \Comment{the state from which to recursively start building the plan}
+%\Statex \hspace{\algorithmicindent} List\textless Task\textgreater\ \textit{tasks} \Comment{the list of tasks}
+%\Statex \hspace{\algorithmicindent} Plan \textit{plan} \Comment{the plan being recursively built}
+%\Statex \textsc{Output}
+%\Statex \hspace{\algorithmicindent} Plan \textit{plan} \Comment{the plan built starting from the given state}
+%
+%\Statex
+%%\State $plan \gets Plan(vehicle.getCurrentCity)$
+%\State $previousState \gets state.previous$	   
+%\If{$previousState$ is not $null$}
+%	\State buildPlan($previousState, plan, tasks$)
+%	\State $i \gets state.taskIndex$
+%	\For{$city$ in $previousState.departure.pathTo(state.departure)$}
+%		\State $plan.appendMove(city)$
+%	\EndFor	
+%	\If{$state.taskStatus[i]$ is pickedUp}
+%		\State $plan.appendPickup(tasks[i])$
+%	\ElsIf{$state.taskStatus[i]$ is delivered}
+%		\State $plan.appendDelivery(tasks[i])$
+%	\EndIf	
+%\EndIf
+%\State \Return $plan$
+%\end{algorithmic}
+%\end{algorithm}
+
+
 
 \subsection{A*}
 % Details of the A* implementation %
+The A* algorithm is similar to the BFS algorithm. The main difference is that the queue of states is reordered as soon as new (successors) states are added to it. Moreover, once a final state is reached, the algorithm does not further visit other states, but terminates and uses this final state for building a plan.
 
 \subsection{Heuristic Function}
 % Details of the heuristic functions: main idea, optimality, admissibility %
-
 
 \section{Results}
 
 \subsection{Experiment 1: BFS and A* Comparison}
 % Compare the two algorithms in terms of: optimality, efficiency, limitations %
-% Report the number of tasks for which you can build a plan in less than one minute %
+% Report the number of tasks for which you can build a plan in less than one minute 
+The BFS algorithm runs out of memory when the number of tasks to deliver exceeds 8; the A* algorithm can go up to 9 tasks before it throws an \textit{OutOMemory} exception as well.
+More detailed performance results for both algorithms 6 up to 9 tasks are shown in the Table *.\\
+
+\begin{tabular}{|l|llllll|llllll|}
+\hline
+Number of tasks & & 6 & 7 & 8 & 9 & 10 & & 6 & 7 & 8 & 9 & 10\\
+\hline
+Minimum cost & &? & ? & ? & - & - & & ? & ? & ? & ? & -\\
+Number of states & BFS & ? & ? & ? & - & - & A* & ? & ? & ? & ? & -\\
+Execution time (ms) & &? & ? & ? & - & - & & ? & ? & ? & ? & -\\
+\hline
+\end{tabular}
+\vspace{4mm}
+
+\noindent
+In overall, since it visits less states, the A* algorithm takes less time to compute an optimal plan the BFS algorithm finds by visiting all the possible states.
+
+
 
 \subsubsection{Setting}
 % Describe the settings of your experiment: topology, task configuration, etc. %
