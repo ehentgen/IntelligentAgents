@@ -6,6 +6,7 @@
 % Add other packages here %
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage{changepage}
 \usepackage{float}
 \usepackage[pdftex]{graphicx}
 \usepackage{caption}
@@ -130,31 +131,53 @@ The A* algorithm is similar to the BFS algorithm. The main difference is that th
 \subsection{Experiment 1: BFS and A* Comparison}
 % Compare the two algorithms in terms of: optimality, efficiency, limitations %
 % Report the number of tasks for which you can build a plan in less than one minute 
-The BFS algorithm runs out of memory when the number of tasks to deliver exceeds 8; the A* algorithm can go up to 9 tasks before it throws an \textit{OutOMemory} exception as well.
-More detailed performance results for both algorithms 6 up to 9 tasks are shown in the Table *.\\
-
-\begin{tabular}{|l|llllll|llllll|}
-\hline
-Number of tasks & & 6 & 7 & 8 & 9 & 10 & & 6 & 7 & 8 & 9 & 10\\
-\hline
-Minimum cost & &? & ? & ? & - & - & & ? & ? & ? & ? & -\\
-Number of states & BFS & ? & ? & ? & - & - & A* & ? & ? & ? & ? & -\\
-Execution time (ms) & &? & ? & ? & - & - & & ? & ? & ? & ? & -\\
-\hline
-\end{tabular}
-\vspace{4mm}
-
-\noindent
-In overall, since it visits less states, the A* algorithm takes less time to compute an optimal plan the BFS algorithm finds by visiting all the possible states.
-
-
 
 \subsubsection{Setting}
 % Describe the settings of your experiment: topology, task configuration, etc. %
+Topology: Switzerland map\\
+Tasks configuration: tasks uniformly distributed\\
+Vehicle: default configuration
 
 \subsubsection{Observations}
 % Describe the experimental results and the conclusions you inferred from these results %
+The BFS algorithm runs out of memory when the number of tasks to deliver exceeds 8; the A* algorithm can go up to 9 tasks before it throws an \textit{OutOMemoryError} as well, or times out.
+More detailed performance results for both algorithms with 6 up to 10 tasks and a seed of 23456 are shown in the Table \ref{table_seed23456}.\\
 
+\begin{adjustwidth}{0cm}{}
+\begin{tabular}{|l|lllll|llllll|}
+\hline
+Number of tasks & & 6 & 7 & 8 & 9 & & 6 & 7 & 8 & 9 & 10\\
+\hline
+Minimum cost & & 6900 & 8050 & 8550 & - & & 6900 & 8050 & 8550 & 8600 & -\\
+Execution time (ms) & BFS & 113 & 1155 & 9723 & - & A* & 102 & 230 & 2146 & 18147 & -\\
+Number of states & & 49 993 & 435 391 & 2 517 570 & - & & 22 097 & 222 660 & 1 351 656 & 6 420 867 & -\\
+\hline
+\end{tabular}
+\captionof{table}{Performance of BFS and A* for a seed equal to 23456}
+\label{table_seed23456}
+\end{adjustwidth}
+\vspace{4mm}
+
+\noindent
+By changing the seed to 65432 for instance, the number of tasks for which the agent can compute a plan increases: the BFS agent can now handle up to 9 tasks, and the A* agent up to 10. We notice the cost for 9 and 10 tasks is the same with the A* algorithm: as the number of tasks increases, the probability that the agent will have to pick up or deliver a task to a city it previously only passed through increases as well. If its capacity allows it, it can thus design a plan which includes the additional task with a cost no higher than before (Table \ref{table_seed65432}).\\
+\begin{adjustwidth}{0cm}{}
+\begin{tabular}{|l|lllll|llllll|}
+\hline
+Number of tasks & & 7 & 8 & 9 & 10 & & 7 & 8 & 9 & 10 & 11\\
+\hline
+Minimum cost & & 5700 & 6600 & 7150 & - & & 5700 & 6600 & 7150 & 7150 & -\\
+Execution time (ms) & BFS & 260 & 3122 & 31 627 & - & A* & 68 & 472 & 4501 & 62 165 & -\\
+Number of states & & 115 157 & 991 288 & 5 307 498 & - & & 46 464 & 437 334 & 2 488 459 & 10 144 872 & -\\
+\hline
+\end{tabular}
+\captionof{table}{Performance of BFS and A* for a seed equal to 65432}
+\label{table_seed65432}
+\end{adjustwidth}
+\vspace{4mm}
+
+\noindent
+Compared to the BFS algorithm, the A* algorithm can only design a plan with one additional task before tt eventually times out or throws an \textit{OutOfMemoryError}.
+However, in overall, since it visits less states, the A* algorithm also takes less time to compute an optimal plan the BFS algorithm finds by visiting all the possible states.
 
 \subsection{Experiment 2: Multi-agent Experiments}
 % Observations in multi-agent experiments %
