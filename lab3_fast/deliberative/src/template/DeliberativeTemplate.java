@@ -37,6 +37,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
     /* the properties of the agent */
     Agent agent;
     int capacity;
+    TaskSet carriedTasks;
 
     /* the planning class */
     Algorithm algorithm;
@@ -108,11 +109,32 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
      * @return
      */
     private Plan bfsPlan(Vehicle vehicle, TaskSet tasks) {
+
+	// the previous plan has been cancelled and a new one needs to be
+	// computed: add the tasks the vehicle may still be carrying to the set
+	// of tasks to deliver
+	if (carriedTasks != null) {
+	    tasks.addAll(carriedTasks);
+	}
+
+	int[] tasksStatus = new int[tasks.size()];
+	// by default, no task has been picked up yet
+	Arrays.fill(tasksStatus, 0);
+	// if the previous plan has been cancelled, the vehicle may already be
+	// carrying some tasks
+	if (carriedTasks != null) {
+	    int numberOfTasks = tasks.size();
+	    Task[] tasksList = tasks.toArray(new Task[tasks.size()]);
+	    for (int i = 0; i < numberOfTasks; ++i) {
+		if (carriedTasks.contains(tasksList[i])) {
+		    tasksStatus[i] = DeliberativeState.PICKED_UP;
+		}
+	    }
+	}
+
 	// initialize the starting state of the BFS algorithm
 	LinkedList<DeliberativeState> Q = new LinkedList<DeliberativeState>();
 
-	int[] tasksStatus = new int[tasks.size()];
-	Arrays.fill(tasksStatus, 0);
 	DeliberativeState initialState = new DeliberativeState(tasksStatus,
 		new ArrayList<Task>(tasks), -1, vehicle.getCurrentCity(), 0, 0,
 		null); // initial node
@@ -335,6 +357,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 	    // This cannot happen for this simple agent, but typically
 	    // you will need to consider the carriedTasks when the next
 	    // plan is computed.
+	    this.carriedTasks = carriedTasks;
 	}
     }
 }
