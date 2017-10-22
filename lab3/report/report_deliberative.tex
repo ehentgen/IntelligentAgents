@@ -184,8 +184,48 @@ However, in overall, since it visits less states, the A* algorithm also takes le
 
 \subsubsection{Setting}
 % Describe the settings of your experiment: topology, task configuration, etc. %
+We use the default configuration, with the map of Switzerland, and a seed of 23456. In this setting, there are up to three agents competing: the first agent starts from Lausanne, the second from Zürich and the third from Bern.
 
 \subsubsection{Observations}
 % Describe the experimental results and the conclusions you inferred from these results %
+As the number of agents increases, their average reward per km decreases, since they are not coordinated.
+Moreover, one plan recomputation induces a cascade of other plan recomputations: after the agent starting from Zürich performs in the beginning one plan recomputation, the agent starting from Lausanne ends up doing four plan recomputations. Each new plan involves a task the agent from Zürich happens to just have picked up, so in the end, the agent from Lausanne delivers only the task it picked up before the conflict occurred.
+With fewer tasks, four for instance, one agent may end up not delivering any tasks, as shown in Figure *.
+
+
+\begin{figure}[h!]
+\centering
+\begin{subfigure}[t]{0.24\textwidth}
+\captionsetup{width=1.0\textwidth}
+\includegraphics[trim={0cm 0cm 0cm 0cm},clip, scale=0.3]{images/"multiagents1_tasks7_seed23456".png}
+\caption{One deliberative agent using the BFS algorithm, 7 tasks, seed = 23456}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.24\textwidth}
+\captionsetup{width=1.0\textwidth}
+\includegraphics[trim={0cm 0cm 0cm 0cm},clip, scale=0.3]{images/"multiagents2_tasks7_seed23456".png}
+\caption{Two deliverative agents using the BFS algorithm, 7 tasks, seed = 23456}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.24\textwidth}
+\captionsetup{width=1.0\textwidth}
+\includegraphics[trim={0cm 0cm 0cm 0cm},clip, scale=0.3]{images/"multiagents3_tasks7_seed23456".png}
+\caption{Three deliberative agents using the BFS algorithm, 7 tasks, seed = 23456}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.24\textwidth}
+\captionsetup{width=1.0\textwidth}
+\includegraphics[trim={0cm 0cm 0cm 0cm},clip, scale=0.3]{images/"multiagents3_tasks4_seed23456".png}
+\caption{Three deliberative agents using the BFS algorithm, 4 tasks, seed = 23456}
+\end{subfigure}
+\caption{Competing deliberative agents using the BFS algorithm}
+\label{discount factor}
+\end{figure}
+
+\noindent
+Theoretically, an agent using the A* algorithm should outperform an agent using the BFS algorithm, since it could begin picking up tasks sooner, while the other agent would still be computing its optimal plan.
+The platform however does not allow us to observe this phenomenon, because the agents start moving when all agents are done computing their plan.
+
+
 
 \end{document}

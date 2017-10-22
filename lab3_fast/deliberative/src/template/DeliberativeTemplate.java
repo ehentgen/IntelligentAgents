@@ -231,12 +231,32 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 	    }
 	};
 
+	// the previous plan has been cancelled and a new one needs to be
+	// computed: add the tasks the vehicle may still be carrying to the set
+	// of tasks to deliver
+	if (carriedTasks != null) {
+	    tasks.addAll(carriedTasks);
+	}
+
+	int[] tasksStatus = new int[tasks.size()];
+	// by default, no task has been picked up yet
+	Arrays.fill(tasksStatus, 0);
+	// if the previous plan has been cancelled, the vehicle may already be
+	// carrying some tasks
+	if (carriedTasks != null) {
+	    int numberOfTasks = tasks.size();
+	    Task[] tasksList = tasks.toArray(new Task[tasks.size()]);
+	    for (int i = 0; i < numberOfTasks; ++i) {
+		if (carriedTasks.contains(tasksList[i])) {
+		    tasksStatus[i] = DeliberativeState.PICKED_UP;
+		}
+	    }
+	}
+
 	// initialize the starting state of the ASTAR algorithm
 	PriorityQueue<DeliberativeState> Q = new PriorityQueue<DeliberativeState>(
 		comparator);
 
-	int[] tasksStatus = new int[tasks.size()];
-	Arrays.fill(tasksStatus, 0);
 	DeliberativeState initialState = new DeliberativeState(tasksStatus,
 		new ArrayList<Task>(tasks), -1, vehicle.getCurrentCity(), 0, 0,
 		null); // initial node
