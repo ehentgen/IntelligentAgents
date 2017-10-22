@@ -1,4 +1,4 @@
-package template;
+package templateJT;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -13,11 +13,11 @@ import logist.topology.Topology.City;
  * Our algo (in order to get a plan) will travel through all those possibles
  * plans
  * 
- * @author E&JT
+ * @author Jean-Thomas
  *
  */
 
-public class DeliberativeState {
+public class DeliberativeState3 {
 
     public static final int NOT_PICKED_UP = 0;
     public static final int PICKED_UP = 1;
@@ -31,11 +31,11 @@ public class DeliberativeState {
     private double cost;
     private double charge;
 
-    private DeliberativeState previous;
+    private DeliberativeState3 previous;
 
-    public DeliberativeState(int[] tasksStatus, List<Task> tasks,
+    public DeliberativeState3(int[] tasksStatus, List<Task> tasks,
 	    int taskIndex, City departure, double charge, double cost,
-	    DeliberativeState previous) {
+	    DeliberativeState3 previous) {
 
 	this.tasksStatus = tasksStatus;
 	this.tasks = tasks;
@@ -48,8 +48,8 @@ public class DeliberativeState {
 	this.previous = previous;
     }
 
-    public Set<DeliberativeState> getSuccessors(Agent agent) {
-	Set<DeliberativeState> nextPossibleStates = new HashSet<DeliberativeState>();
+    public Set<DeliberativeState3> getSuccessors(Agent agent) {
+	Set<DeliberativeState3> nextPossibleStates = new HashSet<DeliberativeState3>();
 
 	double costPerKm = agent.vehicles().get(0).costPerKm();
 	double currentCost = cost;
@@ -74,7 +74,7 @@ public class DeliberativeState {
 
 		    City destination = task.pickupCity;
 
-		    DeliberativeState s = new DeliberativeState(newTasksStatus,
+		    DeliberativeState3 s = new DeliberativeState3(newTasksStatus,
 			    tasks, i, destination, updatedCharge, updatedCost,
 			    this);
 		    nextPossibleStates.add(s);
@@ -91,7 +91,7 @@ public class DeliberativeState {
 
 		City destination = task.deliveryCity;
 
-		DeliberativeState s = new DeliberativeState(newTasksStatus,
+		DeliberativeState3 s = new DeliberativeState3(newTasksStatus,
 			tasks, i, destination, updatedCharge, updatedCost, this);
 		nextPossibleStates.add(s);
 	    }
@@ -137,7 +137,7 @@ public class DeliberativeState {
 	    return false;
 	if (getClass() != obj.getClass())
 	    return false;
-	DeliberativeState other = (DeliberativeState) obj;
+	DeliberativeState3 other = (DeliberativeState3) obj;
 	if (Double.doubleToLongBits(charge) != Double
 		.doubleToLongBits(other.charge))
 	    return false;
@@ -154,7 +154,7 @@ public class DeliberativeState {
 	return true;
     }
 
-    public DeliberativeState previous() {
+    public DeliberativeState3 previous() {
 	return previous;
     }
 

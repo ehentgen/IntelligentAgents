@@ -76,6 +76,9 @@ public class DeliberativeTemplate2 implements DeliberativeBehavior {
 		default:
 			throw new AssertionError("Should not happen.");
 		}
+		
+		System.out.println("Max # of states : " + maxStates);
+		
 		long endTime = System.currentTimeMillis();
 		System.out.println("Time to compute: " + (endTime - startTime) / 1000.0 + " sec");
 		System.out.println(plan.toString());

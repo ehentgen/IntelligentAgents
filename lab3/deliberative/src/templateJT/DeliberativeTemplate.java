@@ -5,7 +5,9 @@ import logist.simulation.Vehicle;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import cern.colt.Arrays;
 import logist.agent.Agent;
@@ -103,14 +105,14 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 	 */
 	private Plan bfsPlan(Vehicle vehicle, TaskSet tasks) {
 		
-		List<DeliberativeState> Q = new ArrayList<DeliberativeState>();
+		LinkedList<DeliberativeState> Q = new LinkedList<DeliberativeState>();
 		//Q.add(new DeliberativeState(tasks, null, vehicle.getCurrentCity(), null)); // initial node
 		TaskSet empty = TaskSet.copyOf(tasks);
 		empty.removeAll(tasks);
 		
 		Q.add(new DeliberativeState(tasks, empty, vehicle.getCurrentCity(), null, 0, 0)); // initial node
 		
-		HashSet<DeliberativeState> loopCheck = new HashSet<DeliberativeState>();
+		Set<DeliberativeState> loopCheck = new HashSet<DeliberativeState>();
 		List<DeliberativeState> S = new ArrayList<DeliberativeState>();
 		DeliberativeState n;
 		DeliberativeState finalState = null;
