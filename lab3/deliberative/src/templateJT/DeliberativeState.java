@@ -1,7 +1,5 @@
 package templateJT;
 
-import logist.simulation.Vehicle;
-
 import java.util.ArrayList;
 import java.util.List;
 
