@@ -54,45 +54,39 @@ public class DeliberativeState {
 		double costPerKm = agent.vehicles().get(0).costPerKm();
 		double currentCost = cost;
 
-		int numberOfTasks = tasksStatus.length;
+		for (Task task : tasks) {
+			int taskID = task.id;
 
-		for (int i = 0; i < numberOfTasks; ++i) {
-			Task task = tasks.get(i);
-
-			if (tasksStatus[i] == NOT_PICKED_UP) {
+			if (tasksStatus[taskID] == NOT_PICKED_UP) {
 				double updatedCharge = charge + task.weight;
 
 				// in the next state, try picking up task, if possible
 				if (updatedCharge < agent.vehicles().get(0).capacity()) {
 					// indicate the task will be picked up
-					int[] newTasksStatus = Arrays.copyOf(tasksStatus,
-							tasksStatus.length);
-					newTasksStatus[i] = PICKED_UP;
+					int[] newTasksStatus = Arrays.copyOf(tasksStatus, tasksStatus.length);
+					newTasksStatus[taskID] = PICKED_UP;
 
-					double updatedCost = currentCost
-							+ departure.distanceTo(task.pickupCity) * costPerKm;
+					double updatedCost = currentCost + departure.distanceTo(task.pickupCity) * costPerKm;
 
 					City destination = task.pickupCity;
 
 					DeliberativeState s = new DeliberativeState(newTasksStatus,
-							tasks, i, destination, updatedCharge, updatedCost,
+							tasks, taskID, destination, updatedCharge, updatedCost,
 							this);
 					nextPossibleStates.add(s);
 				}
-			} else if (tasksStatus[i] == PICKED_UP) {
+			} else if (tasksStatus[taskID] == PICKED_UP) {
 				// indicate the task will be delivered
-				int[] newTasksStatus = Arrays.copyOf(tasksStatus,
-						tasksStatus.length);
-				newTasksStatus[i] = DELIVERED;
+				int[] newTasksStatus = Arrays.copyOf(tasksStatus, tasksStatus.length);
+				newTasksStatus[taskID] = DELIVERED;
 
 				double updatedCharge = charge - task.weight;
-				double updatedCost = currentCost
-						+ departure.distanceTo(task.deliveryCity) * costPerKm;
+				double updatedCost = currentCost + departure.distanceTo(task.deliveryCity) * costPerKm;
 
 				City destination = task.deliveryCity;
 
 				DeliberativeState s = new DeliberativeState(newTasksStatus,
-						tasks, i, destination, updatedCharge, updatedCost, this);
+						tasks, taskID, destination, updatedCharge, updatedCost, this);
 				nextPossibleStates.add(s);
 			}
 
@@ -105,8 +99,7 @@ public class DeliberativeState {
 	}
 
 	public boolean isFinalState() {
-		int numberOfTasks = tasksStatus.length;
-		for (int i = 0; i < numberOfTasks; ++i) {
+		for (int i = 0; i < tasksStatus.length; ++i) {
 			if (tasksStatus[i] != 2) {
 				return false;
 			}

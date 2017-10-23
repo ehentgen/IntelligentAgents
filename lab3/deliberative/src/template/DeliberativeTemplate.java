@@ -82,7 +82,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 		}
 
 		long endTime = System.currentTimeMillis();
-		System.out.println(plan.toString());	
+		System.out.println("Plan : " + plan.toString());	
 		System.out.println("Time to compute: " + (endTime - startTime) / 1000.0 + " sec");
 
 		return plan;
@@ -90,14 +90,12 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 
 	/**
 	 * -> Q represents the states we still have to go through <br>
-	 * -> C represents the states we already went through, and don't want to
+	 * -> loopCheck represents the states we already went through, and don't want to
 	 * cycle through (again) <br>
-	 * -> n is just a state <br>
 	 * 
 	 * More than a state-based BFS, this function should keep track of the best
 	 * path, in order to compute the plan afterwards.<br>
-	 * the best way of doing it is probably to keep this in the state itself as
-	 * a List\Action\ (how did I come here?)
+	 * the best way of doing it is probably to keep a pointer to the previous state.
 	 * 
 	 * @param vehicle
 	 * @param tasks
@@ -268,7 +266,6 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 		City initialCity = vehicle.getCurrentCity();
 		Plan plan = new Plan(initialCity);
 		plan = buildPlan(finalState, plan, new ArrayList<Task>(tasks));
-		System.out.println("Plan: " + plan.toString());
 
 		return plan;
 	}

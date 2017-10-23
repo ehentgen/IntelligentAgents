@@ -49,12 +49,9 @@ public class DeliberativeState {
 	
 	public Set<DeliberativeState> getSuccessors(Agent agent) {
 		Set<DeliberativeState> nextPossibleStates = new HashSet<DeliberativeState>();
-		
 
-		for (int taskID = 0; taskID < tasksStatus.length; ++taskID) {
-			Task task = tasks.get(taskID);
-		//for (Task task : tasks) {
-		//	int taskID = task.id;
+		for (Task task : tasks) {
+			int taskID = task.id;
 			
 			if (tasksStatus[taskID] == NOT_PICKED_UP) {
 				if (charge + task.weight < agent.vehicles().get(0).capacity()) {
