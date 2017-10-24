@@ -38,6 +38,8 @@ In our model, a state is characterized by the following six attributes:
 \item[\textendash]State \textbf{previous}: the previous state the agent's vehicle was in
 \end{itemize}
 
+Each state additionally keeps a reference to the list of tasks that have to be delivered.
+
 \subsection{Goal State}
 % Describe the goal state %
 A goal (or final) state is a state where all tasks have been delivered. For a given state, this can be checked using the \textit{tasksStatus} attribute.
@@ -166,7 +168,7 @@ By changing the seed to 65432 for instance, the number of tasks for which the ag
 Number of tasks & & 7 & 8 & 9 & 10 & & 7 & 8 & 9 & 10 & 11\\
 \hline
 Minimum cost & & 5700 & 6600 & 7150 & - & & 5700 & 6600 & 7150 & 7150 & -\\
-Execution time (ms) & BFS & 260 & 3122 & 31 627 & - & A* & 68 & 472 & 4501 & 62 165 & -\\
+Execution time (ms) & BFS & 260 & 3122 & 31 627 & - & A* & 68 & 472 & 4501 & 52 153 & -\\
 Number of states & & 115 157 & 991 288 & 5 307 498 & - & & 46 464 & 437 334 & 2 488 459 & 10 144 872 & -\\
 \hline
 \end{tabular}
@@ -174,6 +176,9 @@ Number of states & & 115 157 & 991 288 & 5 307 498 & - & & 46 464 & 437 334 & 2 
 \label{table_seed65432}
 \end{adjustwidth}
 \vspace{4mm}
+
+\noindent
+For this seed, BFS is able to build a plan in less than one minute for up to 9 tasks, and A* for up to 10 tasks. This number can vary depending on the initial setting and the seed though. It can also slightly change across different simulations, although the initial configuration is the same.\\
 
 \noindent
 Compared to the BFS algorithm, the A* algorithm can only design a plan with one additional task before tt eventually times out or throws an \textit{OutOfMemoryError}.
