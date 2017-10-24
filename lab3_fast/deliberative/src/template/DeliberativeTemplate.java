@@ -22,6 +22,10 @@ import logist.topology.Topology.City;
 
 /**
  * An optimal planner for one vehicle.
+ * 
+ * @author Jean-Thomas Furrer
+ * @author Emily Hentgen
+ *
  */
 @SuppressWarnings("unused")
 public class DeliberativeTemplate implements DeliberativeBehavior {
@@ -73,7 +77,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 	    start = System.currentTimeMillis();
 	    plan = astarPlan(vehicle, tasks);
 	    end = System.currentTimeMillis();
-	    System.out.println("Plan computation: " + (end - start) + "ms");
+	    System.out.println("Execution time: " + (end - start) + "ms");
 	    break;
 	case BFS:
 	    // ...
@@ -81,7 +85,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 	    start = System.currentTimeMillis();
 	    plan = bfsPlan(vehicle, tasks);
 	    end = System.currentTimeMillis();
-	    System.out.println("Plan computation: " + (end - start) + "ms");
+	    System.out.println("Execution time: " + (end - start) + "ms");
 	    break;
 	case NAIVE:
 	    plan = naivePlan(vehicle, tasks);
@@ -92,22 +96,6 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 	return plan;
     }
 
-    /**
-     * -> Q represents the states we still have to go through <br>
-     * -> C represents the states we already went through, and don't want to
-     * cycle through (again) <br>
-     * -> n is just a state <br>
-     * 
-     * More than a state-based BFS, this function should keep track of the best
-     * path, in order to compute the plan afterwards.<br>
-     * the best way of doing it is probably to keep this in the state itself as
-     * a List\Action\ (how did I come here?)
-     * 
-     * @param vehicle
-     * @param tasks
-     * @return
-     * @return
-     */
     private Plan bfsPlan(Vehicle vehicle, TaskSet tasks) {
 
 	// the previous plan has been cancelled and a new one needs to be
@@ -180,7 +168,6 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 	}
 
 	System.out.println("nb states: " + number_of_states);
-	System.out.println("nb iterations: " + number_of_iterations);
 	System.out.println("cost:" + minimumCost);
 
 	City initialCity = vehicle.getCurrentCity();
@@ -198,36 +185,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 
 	    @Override
 	    public int compare(DeliberativeState o1, DeliberativeState o2) {
-		// return Double.compare(score(o1), score(o2));
 		return Double.compare(o1.cost(), o2.cost());
-	    }
-
-	    private double score(DeliberativeState state) {
-		double accumulatedCost = state.cost();
-		double futureHeuristicCost = Double.MAX_VALUE;
-		double heuristicCost = 0;
-
-		double costPerKm = vehicle.costPerKm();
-
-		int numberOfTasks = tasks.size();
-		for (int i = 0; i < numberOfTasks; ++i) {
-		    Task task = state.tasks().get(i);
-
-		    if (state.taskStatus(i) == DeliberativeState.NOT_PICKED_UP) {
-			heuristicCost = (state.departure().distanceTo(
-				task.pickupCity) + task.pathLength())
-				* costPerKm;
-		    } else if (state.taskStatus(i) == DeliberativeState.PICKED_UP) {
-			heuristicCost += (state.departure()
-				.distanceTo(task.deliveryCity)) * costPerKm;
-		    }
-
-		    if (heuristicCost < futureHeuristicCost) {
-			futureHeuristicCost = heuristicCost;
-		    }
-		}
-
-		return accumulatedCost + futureHeuristicCost;
 	    }
 	};
 
@@ -308,7 +266,6 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 	}
 
 	System.out.println("nb states: " + number_of_states);
-	System.out.println("nb iterations: " + number_of_iterations);
 	System.out.println("cost:" + minimumCost);
 
 	City initialCity = vehicle.getCurrentCity();
@@ -322,7 +279,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
     private Plan buildPlan(DeliberativeState state, Plan plan, List<Task> tasks) {
 	DeliberativeState previousState = state.previous();
 
-	// the initial node has not been reached yet
+	// the backtracking process has not reached the initial node yet
 	if (previousState != null) {
 	    buildPlan(previousState, plan, tasks);
 

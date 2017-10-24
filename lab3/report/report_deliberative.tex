@@ -226,9 +226,10 @@ With fewer tasks, four for instance, one agent may end up not delivering any tas
 \end{figure}
 
 \noindent
+When there are multiple agents which do not coordinate their actions, they end up displaying a worse performance (in terms of reward per km) compared to the same setting where each of them would operate alone.\\
+
+\noindent
 Theoretically, an agent using the A* algorithm should outperform an agent using the BFS algorithm, since it could begin picking up tasks sooner, while the other agent would still be computing its optimal plan.
 The platform however does not allow us to observe this phenomenon, because the agents start moving when all agents are done computing their plan.
-
-
 
 \end{document}

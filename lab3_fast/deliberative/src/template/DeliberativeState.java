@@ -10,10 +10,10 @@ import logist.task.Task;
 import logist.topology.Topology.City;
 
 /**
- * Our algo (in order to get a plan) will travel through all those possibles
- * plans
+ * The class representing a state for a deliberative agent
  * 
- * @author Jean-Thomas
+ * @author Jean-Thomas Furrer
+ * @author Emily Hentgen
  *
  */
 
@@ -104,6 +104,26 @@ public class DeliberativeState {
 	return cost;
     }
 
+    public DeliberativeState previous() {
+	return previous;
+    }
+
+    public City departure() {
+	return departure;
+    }
+
+    public int taskStatus(int i) {
+	return tasksStatus[i];
+    }
+
+    public int taskIndex() {
+	return taskIndex;
+    }
+
+    public List<Task> tasks() {
+	return tasks;
+    }
+
     public boolean isFinalState() {
 	int numberOfTasks = tasksStatus.length;
 	for (int i = 0; i < numberOfTasks; ++i) {
@@ -154,23 +174,4 @@ public class DeliberativeState {
 	return true;
     }
 
-    public DeliberativeState previous() {
-	return previous;
-    }
-
-    public City departure() {
-	return departure;
-    }
-
-    public int taskStatus(int i) {
-	return tasksStatus[i];
-    }
-
-    public int taskIndex() {
-	return taskIndex;
-    }
-
-    public List<Task> tasks() {
-	return tasks;
-    }
 }

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2016.3.19)  24 OCT 2017 06:56
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2016.3.19)  24 OCT 2017 20:30
 entering extended mode
 **report_deliberative.tex
 
@@ -439,14 +439,19 @@ File: images/"multiagents3_tasks4_seed23456".png Graphic file (type png)
 Package pdftex.def Info: images/"multiagents3_tasks4_seed23456".png used on inp
 ut line 221.
 (pdftex.def)             Requested size: 90.33818pt x 90.11234pt.
- [3 <C:/Users/Emily/Documents/EPFL/5ème année/Semestre III/Intelligent Agents
-/IntelligentAgents/lab3/report/images/multiagents1_tasks7_seed23456.png> <C:/Us
-ers/Emily/Documents/EPFL/5ème année/Semestre III/Intelligent Agents/Intellige
-ntAgents/lab3/report/images/multiagents2_tasks7_seed23456.png> <C:/Users/Emily/
-Documents/EPFL/5ème année/Semestre III/Intelligent Agents/IntelligentAgents/l
-ab3/report/images/multiagents3_tasks7_seed23456.png> <C:/Users/Emily/Documents/
-EPFL/5ème année/Semestre III/Intelligent Agents/IntelligentAgents/lab3/report
-/images/multiagents3_tasks4_seed23456.png>]
+
+Underfull \hbox (badness 10000) in paragraph at lines 228--230
+
+ []
+
+[3 <C:/Users/Emily/Documents/EPFL/5ème année/Semestre III/Intelligent Agents/
+IntelligentAgents/lab3/report/images/multiagents1_tasks7_seed23456.png> <C:/Use
+rs/Emily/Documents/EPFL/5ème année/Semestre III/Intelligent Agents/Intelligen
+tAgents/lab3/report/images/multiagents2_tasks7_seed23456.png> <C:/Users/Emily/D
+ocuments/EPFL/5ème année/Semestre III/Intelligent Agents/IntelligentAgents/la
+b3/report/images/multiagents3_tasks7_seed23456.png> <C:/Users/Emily/Documents/E
+PFL/5ème année/Semestre III/Intelligent Agents/IntelligentAgents/lab3/report/
+images/multiagents3_tasks4_seed23456.png>]
 ("C:\Users\Emily\Documents\EPFL\5ème année\Semestre III\Intelligent Agents\In
 telligentAgents\lab3\report\report_deliberative.aux") ) 
 Here is how much of TeX's memory you used:
@@ -471,7 +476,7 @@ sers/Emily/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr
 8.pfb><C:/Users/Emily/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsf
 onts/cm/cmsy10.pfb><C:/Users/Emily/AppData/Local/Programs/MiKTeX 2.9/fonts/type
 1/public/amsfonts/cm/cmti10.pfb>
-Output written on report_deliberative.pdf (3 pages, 200833 bytes).
+Output written on report_deliberative.pdf (3 pages, 201000 bytes).
 PDF statistics:
  69 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
