@@ -1,108 +1,84 @@
 package templateJT;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import logist.agent.Agent;
-import logist.plan.Action;
-import logist.plan.Action.Move;
-import logist.plan.Action.Pickup;
-import logist.plan.Action.Delivery;
 import logist.task.Task;
 import logist.task.TaskSet;
 import logist.topology.Topology.City;
 
 /**
  * Our algo (in order to get a plan) will travel through all those possibles plans
- * @author Jean-Thomas & Emily
+ * @author E&JT
  *
  */
 public class DeliberativeState {
+
+	public static final int NOT_PICKED_UP = 0;
+	public static final int PICKED_UP = 1;
+	public static final int DELIVERED = 2;
 	
-	private TaskSet remainingTasks;
-	private TaskSet loadedTasks;
-	private List<Action> actionsPerformed;
+	//private TaskSet remainingTasks;
+	private DeliberativeState previous;
+	private int[] tasksStatus;
+	private List<Task> tasks;
+	private int taskIndex;
 	
-	private City currentCity;
+	private City departure;
 	
-	private double currentCharge = 0;
+	private double charge = 0;
 	double cost = 0;
-	
-	//public DeliberativeState(TaskSet remaining, TaskSet executed, City current, List<Action> wayToHere) {
-	public DeliberativeState(TaskSet remaining, TaskSet loaded, City current, List<Action> wayToHere, double cost, double charge) {
-		this.remainingTasks = remaining;
-		this.loadedTasks = loaded;
-		this.cost = cost;
-		this.currentCharge = charge;
-		this.currentCity = current;
-		this.actionsPerformed = wayToHere; //This will be super-useful in order to find how to reach the best state
+
+	public DeliberativeState(int[] tasksStatus, List<Task> tasks, int taskIndex, City departure, double charge, double cost,
+			DeliberativeState previous) {
 		
-		if (wayToHere == null) {
-			this.actionsPerformed = new ArrayList<Action>();
-		} else {
-			this.actionsPerformed = wayToHere;
-		}
+		this.tasksStatus = tasksStatus;
+		this.tasks = tasks;
+		this.taskIndex = taskIndex;
+
+		this.departure = departure;
+		this.charge = charge;
+		this.cost = cost;
+
+		this.previous = previous;
 	}
 	
-	public List<DeliberativeState> getSuccessors(Agent agent) {
-		List<DeliberativeState> nextPossibleStates = new ArrayList<DeliberativeState>();
-		double costPerKm = agent.vehicles().get(0).costPerKm();
-		//TaskSet useless = TaskSet.copyOf(remainingTasks);
-		
-		for (Task task : remainingTasks) {
-			List<Action> newActionsPerformed = new ArrayList<Action>(actionsPerformed);
+	public Set<DeliberativeState> getSuccessors(Agent agent) {
+		Set<DeliberativeState> nextPossibleStates = new HashSet<DeliberativeState>();
 
-			double newCharge = currentCharge + task.weight;
+		for (Task task : tasks) {
+			int taskID = task.id;
 			
-			if (newCharge < agent.vehicles().get(0).capacity()) {
-				//remove the task we will pickup
-				TaskSet newRemaining = TaskSet.copyOf(remainingTasks);
-				newRemaining.remove(task);
+			if (tasksStatus[taskID] == NOT_PICKED_UP) {
+				if (charge + task.weight < agent.vehicles().get(0).capacity()) {
+					int[] newTasksStatus = Arrays.copyOf(tasksStatus, tasksStatus.length);
+					newTasksStatus[taskID] = PICKED_UP;
+					
+					City destination = task.pickupCity;
+					double updatedCost = cost
+							+ departure.distanceTo(task.pickupCity) * agent.vehicles().get(0).costPerKm();
+
+					DeliberativeState s = new DeliberativeState(
+							newTasksStatus, tasks, taskID, destination, charge + task.weight, updatedCost, this);
+					nextPossibleStates.add(s);
+				}
+			}
+			else if (tasksStatus[taskID] == PICKED_UP) {
+				int[] newTasksStatus = Arrays.copyOf(tasksStatus, tasksStatus.length);
+				newTasksStatus[taskID] = DELIVERED;
 				
-				TaskSet newLoaded = TaskSet.copyOf(loadedTasks);
-				newLoaded.add(task);
+				City destination = task.deliveryCity;
+				double updatedCost = cost
+						+ departure.distanceTo(task.deliveryCity) * agent.vehicles().get(0).costPerKm();
 				
-				double updatedCost = cost + currentCity.distanceTo(task.pickupCity)  * costPerKm;
-				
-				for (City city : currentCity.pathTo(task.pickupCity))
-					newActionsPerformed.add(new Move(city));
-				
-				newActionsPerformed.add(new Pickup(task));
-				
-				DeliberativeState s = new DeliberativeState(newRemaining, newLoaded, task.pickupCity, newActionsPerformed, updatedCost, newCharge);
+				DeliberativeState s = new DeliberativeState(
+						newTasksStatus, tasks, taskID, destination, charge + task.weight, updatedCost, this);
 				nextPossibleStates.add(s);
 			}
-			
-		}
-		
-		for (Task task : loadedTasks) {
-			List<Action> newActionsPerformed = new ArrayList<Action>(actionsPerformed);
-
-			//remove the task we will execute
-			TaskSet newRemaining = TaskSet.copyOf(remainingTasks);
-			TaskSet newLoaded = TaskSet.copyOf(loadedTasks);
-			newLoaded.remove(task);
-			
-			double newCharge = currentCharge - task.weight;
-			double updatedCost = cost + 
-					(currentCity.distanceTo(task.deliveryCity)) * costPerKm;
-			
-			updatedCost = updatedCost - task.reward;
-			
-			/*for (City city : currentCity.pathTo(task.pickupCity))
-				newActionsPerformed.add(new Move(city));
-			
-			newActionsPerformed.add(new Pickup(task));*/
-			
-			for (City city : currentCity.pathTo(task.deliveryCity)) {
-				Move a = new Move(city);
-				newActionsPerformed.add(a);
-			}
-			newActionsPerformed.add(new Delivery(task));
-			
-			
-			DeliberativeState s = new DeliberativeState(newRemaining, newLoaded, task.deliveryCity, newActionsPerformed, updatedCost, newCharge);
-			nextPossibleStates.add(s);
 		}
 		return nextPossibleStates;
 	}
@@ -113,23 +89,41 @@ public class DeliberativeState {
 	 * @return
 	 */
 	public double getGain() {
-		return loadedTasks.rewardSum();
+		return -1; //loadedTasks.rewardSum();
 	}
 	
 	public double getCost() {
 		return cost;
 	}
 	
-	// => There is only one possible final state.
 	public boolean isFinalState() {
-		return (remainingTasks.isEmpty() && loadedTasks.isEmpty());
-	}
-
-
-	public List<Action> actionsPerformed() {
-		return actionsPerformed;
+		for (int i = 0; i < tasksStatus.length; ++i) {
+			if (tasksStatus[i] != 2) {
+				return false;
+			}
+		}
+		return true;
 	}
 	
+	public DeliberativeState previous() {
+		return previous;
+	}
+
+	public City departure() {
+		return departure;
+	}
+
+	public int taskStatus(int i) {
+		return tasksStatus[i];
+	}
+
+	public int taskIndex() {
+		return taskIndex;
+	}
+
+	public List<Task> tasks() {
+		return tasks;
+	}
 
 	@Override
 	public int hashCode() {
@@ -138,9 +132,7 @@ public class DeliberativeState {
 		long temp;
 		temp = Double.doubleToLongBits(cost);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		result = prime * result + ((currentCity == null) ? 0 : currentCity.hashCode());
-		result = prime * result + ((loadedTasks == null) ? 0 : loadedTasks.hashCode());
-		result = prime * result + ((remainingTasks == null) ? 0 : remainingTasks.hashCode());
+		result = prime * result + Arrays.hashCode(tasksStatus);
 		return result;
 	}
 
@@ -155,24 +147,12 @@ public class DeliberativeState {
 		DeliberativeState other = (DeliberativeState) obj;
 		if (Double.doubleToLongBits(cost) != Double.doubleToLongBits(other.cost))
 			return false;
-		if (currentCity == null) {
-			if (other.currentCity != null)
-				return false;
-		} else if (!currentCity.equals(other.currentCity))
-			return false;
-		if (loadedTasks == null) {
-			if (other.loadedTasks != null)
-				return false;
-		} else if (!loadedTasks.equals(other.loadedTasks))
-			return false;
-		if (remainingTasks == null) {
-			if (other.remainingTasks != null)
-				return false;
-		} else if (!remainingTasks.equals(other.remainingTasks))
+		if (!Arrays.equals(tasksStatus, other.tasksStatus))
 			return false;
 		return true;
 	}
 
 
+	
 
 }

@@ -54,7 +54,7 @@ There are three possible actions in our model: moving from one city to a neighbo
 % Details of the BFS implementation %
 The main issue with the BFS algorithm is that the number of states grows exponentially with the number of tasks.
 The implementation must hence create states occupying few memory and each state visit must be as fast as possible.
-To this end, we use a \textit{LinkedList} for storing the the set of all states that are yet to be visited and \textit{HashSet}s for storing the successors of the current state as well as the set of all the already visited states.
+To this end, we use a \textit{LinkedList} for storing the set of all states that are yet to be visited and \textit{HashSet}s for storing the successors of the current state as well as the set of all the already visited states.
 In the previous \textit{State} definition, we further use an array of \textit{int} for keeping track of each task status: it occupies few memory, and updating it induces less overhead than \textit{List}s or \textit{Set}s for instance storing the yet to be picked up/picked up but not yet delivered tasks.
 Following the same idea, instead of storing the complete list of actions that lead to the state, we store a reference to the previous state, which is less memory consuming.
 
@@ -127,6 +127,7 @@ The A* algorithm is similar to the BFS algorithm. The main difference is that th
 
 \subsection{Heuristic Function}
 % Details of the heuristic functions: main idea, optimality, admissibility %
+The main idea behind our heuristic function is that we want to minimize the final cost. In the BFS algorithm, once we reached all the final states, we keep only one which is the one having the smallest cost. Hence the simplest heuristic function can simply be to compare the cost of reaching two states. In that way, we can be sure that when reaching the very first final state, this is also the optimal one and we can stop the algorithm.
 
 \section{Results}
 
@@ -142,7 +143,7 @@ Vehicle: default configuration
 
 \subsubsection{Observations}
 % Describe the experimental results and the conclusions you inferred from these results %
-The BFS algorithm runs out of memory when the number of tasks to deliver exceeds 8; the A* algorithm can go up to 9 tasks before it throws an \textit{OutOMemoryError} as well, or times out.
+The BFS algorithm runs out of memory when the number of tasks to deliver exceeds 8; the A* algorithm can go up to 9 tasks (in less than a minute) before it throws an \textit{OutOMemoryError} as well, or times out.
 More detailed performance results for both algorithms with 6 up to 10 tasks and a seed of 23456 are shown in the Table \ref{table_seed23456}.\\
 
 \begin{adjustwidth}{0cm}{}
@@ -189,13 +190,13 @@ However, in overall, since it visits less states, the A* algorithm also takes le
 
 \subsubsection{Setting}
 % Describe the settings of your experiment: topology, task configuration, etc. %
-We use the default configuration, with the map of Switzerland, and a seed of 23456. In this setting, there are up to three agents competing: the first agent starts from Lausanne, the second from Zürich and the third from Bern.
+We use the default configuration, with the map of Switzerland, and a seed of 23456. In this setting, there are up to three agents competing: the first agent starts from Lausanne, the second from Z\"urich and the third from Bern.
 
 \subsubsection{Observations}
 % Describe the experimental results and the conclusions you inferred from these results %
 As the number of agents increases, their average reward per km decreases, since they are not coordinated.
-Moreover, one plan recomputation induces a cascade of other plan recomputations: after the agent starting from Zürich performs in the beginning one plan recomputation, the agent starting from Lausanne ends up doing four plan recomputations. Each new plan involves a task the agent from Zürich happens to just have picked up, so in the end, the agent from Lausanne delivers only the task it picked up before the conflict occurred.
-With fewer tasks, four for instance, one agent may end up not delivering any tasks, as shown in Figure *.
+Moreover, one plan recomputation induces a cascade of other plan recomputations: after the agent starting from Z\"urich performs in the beginning one plan recomputation, the agent starting from Lausanne ends up doing four plan recomputations. Each new plan involves a task the agent from Z\"urich happens to just have picked up, so in the end, the agent from Lausanne delivers only the task it picked up before the conflict occurred.
+With fewer tasks, four for instance, one agent may end up not delivering any tasks, as shown in Figure 1 (d).
 
 
 \begin{figure}[h!]

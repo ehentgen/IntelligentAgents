@@ -4,12 +4,13 @@ package templateJT;
 import logist.simulation.Vehicle;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import cern.colt.Arrays;
+//import cern.colt.Arrays;
 import logist.agent.Agent;
 import logist.behavior.DeliberativeBehavior;
 import logist.plan.Action;
@@ -19,6 +20,7 @@ import logist.task.TaskDistribution;
 import logist.task.TaskSet;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
+import templateJT.DeliberativeState;
 
 
 /**
@@ -106,14 +108,18 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 	private Plan bfsPlan(Vehicle vehicle, TaskSet tasks) {
 		
 		LinkedList<DeliberativeState> Q = new LinkedList<DeliberativeState>();
-		//Q.add(new DeliberativeState(tasks, null, vehicle.getCurrentCity(), null)); // initial node
-		TaskSet empty = TaskSet.copyOf(tasks);
-		empty.removeAll(tasks);
+		//TaskSet empty = TaskSet.copyOf(tasks);
+		//empty.removeAll(tasks);
 		
-		Q.add(new DeliberativeState(tasks, empty, vehicle.getCurrentCity(), null, 0, 0)); // initial node
+		int[] tasksStatus = new int[tasks.size()];
+		Arrays.fill(tasksStatus, 0);
+		DeliberativeState initialState = new DeliberativeState(tasksStatus,
+				new ArrayList<Task>(tasks), -1, vehicle.getCurrentCity(), 0, 0,
+				null); // initial node
+		Q.add(initialState);
 		
 		Set<DeliberativeState> loopCheck = new HashSet<DeliberativeState>();
-		List<DeliberativeState> S = new ArrayList<DeliberativeState>();
+		Set<DeliberativeState> S = new HashSet<DeliberativeState>();
 		DeliberativeState n;
 		DeliberativeState finalState = null;
 		
@@ -121,13 +127,9 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 		
 		while (!Q.isEmpty()) {
 
-			if (maxStates < Q.size()) maxStates = Q.size();
-			
 			/* n <- first elem of Q && Q <- rest(Q) */
-			n = Q.remove(0);
-			
+			n = Q.pop();
 			if (n.isFinalState()) {
-				//System.out.println("New final state"); //TODO
 				double cost = n.getCost();
 				if (cost < minimumCost) {
 					minimumCost = cost;
@@ -140,9 +142,11 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 				loopCheck.add(n);
 				/* S <- successors(n) */
 				S = (n.getSuccessors(agent));
+				Q.addAll(S);
 			}
 			
-			Q.addAll(S);
+//			Q.addAll(S);
+			if (maxStates < Q.size()) maxStates = Q.size();
 			
 			/* if Q is empty, return Failure */
 			if (Q.isEmpty())
@@ -150,16 +154,33 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 				//System.exit(0);
 		}
 		
+		System.out.println("Cost:" + minimumCost);
 		
-		return buildPlan(finalState);
+		return buildPlan(finalState, new Plan(vehicle.getCurrentCity()), new ArrayList<Task>(tasks));
 	}
 	
-	private Plan buildPlan(DeliberativeState state) {
-		City initialCity = agent.vehicles().get(0).getCurrentCity();
-		Plan plan = new Plan(initialCity);
-		List<Action> actions = state.actionsPerformed();
-		for (Action action : actions) {
-			plan.append(action);
+	private Plan buildPlan(DeliberativeState state, Plan plan, List<Task> tasks) {
+		DeliberativeState previousState = state.previous();
+
+		// the initial node has not been reached yet
+		if (previousState != null) {
+			buildPlan(previousState, plan, tasks);
+
+			City previousCity = previousState.departure();
+			City currentCity = state.departure();
+
+			int i = state.taskIndex();
+			int taskStatus = state.taskStatus(i);
+			Task task = tasks.get(i);
+
+			for (City city : previousCity.pathTo(currentCity))
+				plan.appendMove(city);
+
+			if (taskStatus == DeliberativeState.PICKED_UP) {
+				plan.appendPickup(task);
+			} else if (taskStatus == DeliberativeState.DELIVERED) {
+				plan.appendDelivery(task);
+			}
 		}
 		return plan;
 	}
