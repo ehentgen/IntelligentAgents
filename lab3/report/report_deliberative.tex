@@ -31,14 +31,13 @@ In our model, a state is characterized by the following six attributes:
 \begin{itemize}
 \itemsep 0mm
 \item[\textendash]int[] \textbf{tasksStatus}: keeps track of whether each task has not been picked up yet, has been picked up but not delivered, or has been delivered
-\item[\textendash]int \textbf{taskIndex}: the index of the task being currently handled in this state
 \item[\textendash]City \textbf{departure}: the current city where the agent's vehicle is
 \item[\textendash]double \textbf{cost}: the accumulated cost in this state
 \item[\textendash]double \textbf{charge}: the accumulated charge in this state
-\item[\textendash]State \textbf{previous}: the previous state the agent's vehicle was in
 \end{itemize}
 
-Each state additionally keeps a reference to the list of tasks that have to be delivered.
+\noindent
+Each state additionally keeps a reference to the List\textless Task\textgreater\ \textit{tasks} of the tasks that have to be delivered, an int \textit{taskIndex} indicating which task is being currently handled in this state, as well as a \textit{State} reference to the previous state the agent's vehicle was in: this is used for backtracking the list of actions the agent has to perform in order to reach this state, in particular when this is a final state.
 
 \subsection{Goal State}
 % Describe the goal state %
@@ -137,9 +136,7 @@ The main idea behind our heuristic function is that we want to minimize the fina
 
 \subsubsection{Setting}
 % Describe the settings of your experiment: topology, task configuration, etc. %
-Topology: Switzerland map\\
-Tasks configuration: tasks uniformly distributed\\
-Vehicle: default configuration
+We use at first the default configuration with uniformly distributed tasks, the map of Switzerland, a unique agent starting from Lausanne, and a seed of 23456. Afterwards, we also use a seed of 65432.
 
 \subsubsection{Observations}
 % Describe the experimental results and the conclusions you inferred from these results %
@@ -204,25 +201,25 @@ With fewer tasks, four for instance, one agent may end up not delivering any tas
 \begin{subfigure}[t]{0.24\textwidth}
 \captionsetup{width=1.0\textwidth}
 \includegraphics[trim={0cm 0cm 0cm 0cm},clip, scale=0.3]{images/"multiagents1_tasks7_seed23456".png}
-\caption{One deliberative agent using the BFS algorithm, 7 tasks, seed = 23456}
+\caption{One deliberative agent using the BFS algorithm, 7 tasks, seed 23456}
 \end{subfigure}
 \hfill
 \begin{subfigure}[t]{0.24\textwidth}
 \captionsetup{width=1.0\textwidth}
 \includegraphics[trim={0cm 0cm 0cm 0cm},clip, scale=0.3]{images/"multiagents2_tasks7_seed23456".png}
-\caption{Two deliverative agents using the BFS algorithm, 7 tasks, seed = 23456}
+\caption{Two deliverative agents using the BFS algorithm, 7 tasks, seed 23456}
 \end{subfigure}
 \hfill
 \begin{subfigure}[t]{0.24\textwidth}
 \captionsetup{width=1.0\textwidth}
 \includegraphics[trim={0cm 0cm 0cm 0cm},clip, scale=0.3]{images/"multiagents3_tasks7_seed23456".png}
-\caption{Three deliberative agents using the BFS algorithm, 7 tasks, seed = 23456}
+\caption{Three deliberative agents using the BFS algorithm, 7 tasks, seed 23456}
 \end{subfigure}
 \hfill
 \begin{subfigure}[t]{0.24\textwidth}
 \captionsetup{width=1.0\textwidth}
 \includegraphics[trim={0cm 0cm 0cm 0cm},clip, scale=0.3]{images/"multiagents3_tasks4_seed23456".png}
-\caption{Three deliberative agents using the BFS algorithm, 4 tasks, seed = 23456}
+\caption{Three deliberative agents using the BFS algorithm, 4 tasks, seed 23456}
 \end{subfigure}
 \caption{Competing deliberative agents using the BFS algorithm}
 \label{discount factor}
