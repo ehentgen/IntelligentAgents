@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="lib" path="C:/path_to_the_libraries/logist.jar"/>
+	<classpathentry kind="lib" path="C:/path_to_the_libraries/colt.jar"/>
+	<classpathentry kind="lib" path="C:/path_to_the_libraries/commons-math-1.1.jar"/>
+	<classpathentry kind="lib" path="C:/path_to_the_libraries/jdom.jar"/>
+	<classpathentry kind="lib" path="C:/path_to_the_libraries/jsolver.jar"/>
+	<classpathentry kind="lib" path="C:/path_to_the_libraries/plot.jar"/>
+	<classpathentry kind="lib" path="C:/path_to_the_libraries/repast.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

@@ -25,8 +25,5 @@
 	<set timeout-setup="300000" />
 	<set timeout-bid="300000" />
 	<set timeout-plan="300000" />
-	
-	<!-- Flags -->
-	<set flag-show-ui="true" />
 
 </settings>

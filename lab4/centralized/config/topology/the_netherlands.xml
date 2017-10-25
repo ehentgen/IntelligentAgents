@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- the topology of 'the netherlands' -->
-<topology name="the netherlands">
+<!-- the topology of 'france' -->
+<topology name="france" >
 
 	<!-- the list of cities in the topology -->
 	<cities>

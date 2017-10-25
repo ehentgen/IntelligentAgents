@@ -3,11 +3,10 @@
 <agents>
 	<!-- A list of agents and their behavior classes -->
 	
-	<!-- #### DELIBERATIVE AGENTS ### -->
-	<agent name="deliberative-random">
+	<!-- #### CENTRALIZED AGENTS ### -->
+	<agent name="centralized-random">
 		<set class-path="bin/"/>
-		<set class-name="template.DeliberativeTemplate"/>
-		<set algorithm="BFS"/>
+		<set class-name="template.CentralizedTemplate"/>
 	</agent>
 	
 </agents>
