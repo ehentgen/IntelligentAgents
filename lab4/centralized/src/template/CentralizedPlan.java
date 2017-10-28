@@ -10,21 +10,20 @@ public class CentralizedPlan {
 
     private Map<Vehicle, Task> vehicleToFirstTask;
     private Map<Task, Task> taskToTask;
-    private Map<Task, Integer> time;
-    private Map<Task, Vehicle> taskToVehicle;
+
+    // private Map<Task, Integer> time;
+    // private Map<Task, Vehicle> taskToVehicle;
 
     public CentralizedPlan(Map<Vehicle, Task> vehicleToFirstTask,
-	    Map<Task, Task> taskToTask, Map<Task, Integer> time,
-	    Map<Task, Vehicle> taskToVehicle) {
+	    Map<Task, Task> taskToTask) {
 	this.vehicleToFirstTask = vehicleToFirstTask;
 	this.taskToTask = taskToTask;
-	this.time = time;
-	this.taskToVehicle = taskToVehicle;
+	// this.time = time;
+	// this.taskToVehicle = taskToVehicle;
     }
 
     public CentralizedPlan(CentralizedPlan plan) {
-	this(plan.vehicleToFirstTask, plan.taskToTask, plan.time,
-		plan.taskToVehicle);
+	this(plan.vehicleToFirstTask, plan.taskToTask);
     }
 
     public Map<Vehicle, Task> vehicleToFirstTask() {
@@ -35,9 +34,13 @@ public class CentralizedPlan {
 	return taskToTask;
     }
 
-    public Map<Task, Integer> time() {
-	return time;
-    }
+    // public Map<Task, Integer> time() {
+    // return time;
+    // }
+
+    // public Map<Task, Vehicle> vehicle() {
+    // return taskToVehicle;
+    // }
 
     public double cost() {
 	double cost = 0;
@@ -71,10 +74,6 @@ public class CentralizedPlan {
 	return cost;
     }
 
-    public Map<Task, Vehicle> vehicle() {
-	return taskToVehicle;
-    }
-
     public void setNextTask(Vehicle vehicle, Task task) {
 	vehicleToFirstTask.put(vehicle, task);
     }
@@ -83,22 +82,18 @@ public class CentralizedPlan {
 	taskToTask.put(task1, task2);
     }
 
-    public void updateTime(Vehicle vehicle) {
-	Task firstTask = vehicleToFirstTask.get(vehicle);
-	if (firstTask != null) {
-	    time.put(firstTask, 1);
-	}
+    /*
+     * public void updateTime(Vehicle vehicle) { Task firstTask =
+     * vehicleToFirstTask.get(vehicle); if (firstTask != null) {
+     * time.put(firstTask, 1); }
+     * 
+     * Task nextTask = taskToTask.get(firstTask); int i = 2; while (nextTask !=
+     * null) { time.put(taskToTask.get(nextTask), i++); nextTask =
+     * taskToTask.get(nextTask); } }
+     */
 
-	Task nextTask = taskToTask.get(firstTask);
-	int i = 2;
-	while (nextTask != null) {
-	    time.put(taskToTask.get(nextTask), i++);
-	    nextTask = taskToTask.get(nextTask);
-	}
-    }
-
-    public void setVehicle(Task task, Vehicle vehicle) {
-	taskToVehicle.put(task, vehicle);
-    }
+    // public void setVehicle(Task task, Vehicle vehicle) {
+    // taskToVehicle.put(task, vehicle);
+    // }
 
 }

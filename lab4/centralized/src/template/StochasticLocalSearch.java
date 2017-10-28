@@ -20,7 +20,7 @@ public class StochasticLocalSearch {
 
     // maximum number of steps with no improvement before the stochastic local
     // search algorithm stops
-    private final int COUNTDOWN = 10;
+    private final int COUNTDOWN = 10000; // TODO: optimal value?
     private String stochasticLocalSearchStopCause = "";
 
     public StochasticLocalSearch(List<Vehicle> vehicles, TaskSet tasks,
@@ -131,14 +131,14 @@ public class StochasticLocalSearch {
 
 	Map<Vehicle, Task> vehicleToFirstTask = new HashMap<Vehicle, Task>();
 	Map<Task, Task> taskToTask = new HashMap<Task, Task>();
-	Map<Task, Integer> time = new HashMap<Task, Integer>();
-	Map<Task, Vehicle> taskToVehicle = new HashMap<Task, Vehicle>();
+	// Map<Task, Integer> time = new HashMap<Task, Integer>();
+	// Map<Task, Vehicle> taskToVehicle = new HashMap<Task, Vehicle>();
 
 	// give the first task to the largest vehicle
 	Task firstTask = tasksList.getFirst();
 	vehicleToFirstTask.put(largestVehicle, firstTask);
-	taskToVehicle.put(firstTask, largestVehicle);
-	time.put(firstTask, 1);
+	// taskToVehicle.put(firstTask, largestVehicle);
+	// time.put(firstTask, 1);
 
 	// do not give any task to the other vehicles
 	for (int i = 0; i < numberOfVehicles; ++i) {
@@ -149,7 +149,7 @@ public class StochasticLocalSearch {
 	}
 
 	// give the remaining tasks to the largest vehicle
-	int i = 2;
+	// int i = 2;
 	while (!tasksList.isEmpty()) {
 	    Task task = tasksList.removeFirst();
 
@@ -158,12 +158,12 @@ public class StochasticLocalSearch {
 	    } else {
 		taskToTask.put(task, null);
 	    }
-	    taskToVehicle.put(task, largestVehicle);
-	    time.put(task, i++);
+	    // taskToVehicle.put(task, largestVehicle);
+	    // time.put(task, i++);
 	}
 
 	CentralizedPlan plan = new CentralizedPlan(vehicleToFirstTask,
-		taskToTask, time, taskToVehicle);
+		taskToTask);
 
 	return plan;
     }
@@ -184,6 +184,7 @@ public class StochasticLocalSearch {
 	    if (!thisVehicle.equals(thatVehicle)) {
 		Task task = previousPlan.vehicleToFirstTask().get(thisVehicle);
 
+		// [constraint]
 		if (task != null
 			&& getCurrentLoad(thatVehicle) + task.weight <= thatVehicle
 				.capacity()) {
@@ -227,9 +228,9 @@ public class StochasticLocalSearch {
 		neighbourPlan.vehicleToFirstTask().get(v2));
 	neighbourPlan.setNextTask(v2, task);
 
-	neighbourPlan.updateTime(v1);
-	neighbourPlan.updateTime(v2);
-	neighbourPlan.setVehicle(task, v2);
+	// neighbourPlan.updateTime(v1);
+	// neighbourPlan.updateTime(v2);
+	// neighbourPlan.setVehicle(task, v2);
 
 	return neighbourPlan;
     }
@@ -276,7 +277,7 @@ public class StochasticLocalSearch {
 	    neighbourPlan.setNextTask(task_2, nextTask_1);
 	    neighbourPlan.setNextTask(task_1, nextTask_2);
 	}
-	neighbourPlan.updateTime(vehicle);
+	// neighbourPlan.updateTime(vehicle);
 
 	return neighbourPlan;
     }
@@ -330,7 +331,7 @@ public class StochasticLocalSearch {
 
     private boolean checkConstraints() {
 	boolean constraintsRespected = false;
-	// TODO
+
 	return constraintsRespected;
     }
 
