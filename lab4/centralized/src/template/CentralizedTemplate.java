@@ -62,10 +62,18 @@ public class CentralizedTemplate implements CentralizedBehavior {
 	long time_start = System.currentTimeMillis();
 
 	// System.out.println("Agent " + agent.id() + " has tasks " + tasks);
-	Plan planVehicle1 = naivePlan(vehicles.get(0), tasks);
+	// Plan planVehicle1 = naivePlan(vehicles.get(0), tasks);
 
 	List<Plan> plans = new ArrayList<Plan>();
-	plans.add(planVehicle1);
+	// plans.add(planVehicle1);
+
+	double probability = 0.3;
+	CentralizedPlan centralizedPlan = stochasticLocalSearch(tasks,
+		probability);
+
+	for (Vehicle vehicle : vehicles) {
+	    plans.add(buildPlan(centralizedPlan, vehicle));
+	}
 	while (plans.size() < vehicles.size()) {
 	    plans.add(Plan.EMPTY);
 	}
@@ -103,76 +111,31 @@ public class CentralizedTemplate implements CentralizedBehavior {
 	return plan;
     }
 
-    private Vehicle selectRandomVehicle(CentralizedPlan plan) {
-	Random random = new Random();
-	int numberOfVehicles = agent.vehicles().size();
-	int count = 0;
-	Vehicle vehicle;
+    private Plan buildPlan(CentralizedPlan centralizedPlan, Vehicle vehicle) {
+	City currentCity = vehicle.getCurrentCity();
+	Plan plan = new Plan(currentCity);
 
-	do {
-	    int r = random.nextInt(numberOfVehicles);
-	    vehicle = agent.vehicles().get(r);
-	    ++count;
-	} while (plan.vehicleToFirstTask().get(vehicle) == null
-		&& count < numberOfVehicles);
-	// break if no vehicle has a first task assigned to it
-
-	return vehicle;
-    }
-
-    private List<CentralizedPlan> chooseNeighbours(CentralizedPlan previousPlan) {
-
-	List<CentralizedPlan> neighbourPlans = new ArrayList<CentralizedPlan>();
-
-	Vehicle thisVehicle = selectRandomVehicle(previousPlan);
-	if (thisVehicle == null) {
-	    System.err
-		    .println("Error: no vehicle selected. No vehicle has any task assigned to it. Returning empty neighbour plans list.");
-	    return neighbourPlans;
-	}
-
-	// applying the 'changing vehicle' operator
-	List<Vehicle> vehicles = new ArrayList<Vehicle>(agent.vehicles());
-	vehicles.remove(thisVehicle);
-	// TODO: verify if faster to create new ArrayList, or check if condition
-
-	for (Vehicle thatVehicle : vehicles) {
-	    Task task = previousPlan.vehicleToFirstTask().get(thisVehicle);
-
-	    if (getCurrentLoad(thatVehicle) + task.weight <= thatVehicle
-		    .capacity()) {
-		CentralizedPlan neighbourPlan = changeFirstTaskBetweenVehicles(
-			previousPlan, thisVehicle, thatVehicle);
-		neighbourPlans.add(neighbourPlan);
+	Task task = centralizedPlan.vehicleToFirstTask().get(vehicle);
+	while (task != null) {
+	    for (City city : currentCity.pathTo(task.pickupCity)) {
+		plan.appendMove(city);
 	    }
-	}
-
-	// applying the 'change task order' operator
-	int length = 0;
-	Task task = previousPlan.vehicleToFirstTask().get(thisVehicle);
-
-	do {
-	    task = previousPlan.taskToTask().get(task);
-	    length += 1;
-	} while (task != null);
-
-	if (length >= 2) {
-	    for (int taskIndex1 = 1; taskIndex1 < length; ++taskIndex1) {
-		for (int taskIndex2 = taskIndex1 + 1; taskIndex2 <= length; ++taskIndex2) {
-		    CentralizedPlan neighbourPlan = changeTaskOrder(
-			    previousPlan, thisVehicle, taskIndex1, taskIndex2);
-		    neighbourPlans.add(neighbourPlan);
-		}
+	    plan.appendPickup(task);
+	    for (City city : task.pickupCity.pathTo(task.deliveryCity)) {
+		plan.appendMove(city);
 	    }
+	    plan.appendDelivery(task);
+	    currentCity = task.deliveryCity;
+	    task = centralizedPlan.taskToTask().get(task);
 	}
-
-	return neighbourPlans;
+	return plan;
     }
 
     private CentralizedPlan stochasticLocalSearch(TaskSet tasks,
 	    double probability) {
 	CentralizedPlan plan = selectInitialSolution(tasks);
 
+	// TODO: check if okay with timeout limit
 	int maxNumberOfIterations = 10000;
 	for (int i = 0; i < maxNumberOfIterations; ++i) {
 	    CentralizedPlan previousPlan = plan;
@@ -203,25 +166,6 @@ public class CentralizedTemplate implements CentralizedBehavior {
 	} else {
 	    return previousPlan;
 	}
-    }
-
-    private List<CentralizedPlan> getMinimumCostPlans(
-	    List<CentralizedPlan> plans) {
-
-	double minimumCost = Double.MAX_VALUE;
-	List<CentralizedPlan> minimumCostPlans = new ArrayList<CentralizedPlan>();
-
-	for (CentralizedPlan plan : plans) {
-	    if (plan.cost() < minimumCost) {
-		minimumCost = plan.cost();
-		minimumCostPlans.clear();
-		minimumCostPlans.add(plan);
-	    } else if (plan.cost() == minimumCost) {
-		minimumCostPlans.add(plan);
-	    }
-	}
-
-	return minimumCostPlans;
     }
 
     private CentralizedPlan selectInitialSolution(TaskSet tasks) {
@@ -279,6 +223,55 @@ public class CentralizedTemplate implements CentralizedBehavior {
 		taskToTask, time, taskToVehicle);
 
 	return plan;
+    }
+
+    private List<CentralizedPlan> chooseNeighbours(CentralizedPlan previousPlan) {
+
+	List<CentralizedPlan> neighbourPlans = new ArrayList<CentralizedPlan>();
+
+	Vehicle thisVehicle = selectRandomVehicle(previousPlan);
+	if (thisVehicle == null) {
+	    System.err
+		    .println("Error: no vehicle selected. No vehicle has any task assigned to it. Returning empty neighbour plans list.");
+	    return neighbourPlans;
+	}
+
+	// applying the 'change first task between vehicles' operator
+	List<Vehicle> vehicles = new ArrayList<Vehicle>(agent.vehicles());
+	vehicles.remove(thisVehicle);
+	// TODO: verify if faster to create new ArrayList, or check if condition
+
+	for (Vehicle thatVehicle : vehicles) {
+	    Task task = previousPlan.vehicleToFirstTask().get(thisVehicle);
+
+	    if (getCurrentLoad(thatVehicle) + task.weight <= thatVehicle
+		    .capacity()) {
+		CentralizedPlan neighbourPlan = changeFirstTaskBetweenVehicles(
+			previousPlan, thisVehicle, thatVehicle);
+		neighbourPlans.add(neighbourPlan);
+	    }
+	}
+
+	// applying the 'change task order' operator
+	int length = 0;
+	Task task = previousPlan.vehicleToFirstTask().get(thisVehicle);
+
+	do {
+	    task = previousPlan.taskToTask().get(task);
+	    length += 1;
+	} while (task != null);
+
+	if (length >= 2) {
+	    for (int taskIndex1 = 1; taskIndex1 < length; ++taskIndex1) {
+		for (int taskIndex2 = taskIndex1 + 1; taskIndex2 <= length; ++taskIndex2) {
+		    CentralizedPlan neighbourPlan = changeTaskOrder(
+			    previousPlan, thisVehicle, taskIndex1, taskIndex2);
+		    neighbourPlans.add(neighbourPlan);
+		}
+	    }
+	}
+
+	return neighbourPlans;
     }
 
     private CentralizedPlan changeFirstTaskBetweenVehicles(
@@ -346,6 +339,23 @@ public class CentralizedTemplate implements CentralizedBehavior {
 	return neighbourPlan;
     }
 
+    private Vehicle selectRandomVehicle(CentralizedPlan plan) {
+	Random random = new Random();
+	int numberOfVehicles = agent.vehicles().size();
+	int count = 0;
+	Vehicle vehicle;
+
+	do {
+	    int r = random.nextInt(numberOfVehicles);
+	    vehicle = agent.vehicles().get(r);
+	    ++count;
+	} while (plan.vehicleToFirstTask().get(vehicle) == null
+		&& count < numberOfVehicles);
+	// break if no vehicle has a first task assigned to it
+
+	return vehicle;
+    }
+
     private double getCurrentLoad(Vehicle vehicle) {
 	TaskSet carriedTasks = vehicle.getCurrentTasks();
 	double load = 0;
@@ -355,6 +365,25 @@ public class CentralizedTemplate implements CentralizedBehavior {
 	}
 
 	return load;
+    }
+
+    private List<CentralizedPlan> getMinimumCostPlans(
+	    List<CentralizedPlan> plans) {
+
+	double minimumCost = Double.MAX_VALUE;
+	List<CentralizedPlan> minimumCostPlans = new ArrayList<CentralizedPlan>();
+
+	for (CentralizedPlan plan : plans) {
+	    if (plan.cost() < minimumCost) {
+		minimumCost = plan.cost();
+		minimumCostPlans.clear();
+		minimumCostPlans.add(plan);
+	    } else if (plan.cost() == minimumCost) {
+		minimumCostPlans.add(plan);
+	    }
+	}
+
+	return minimumCostPlans;
     }
 
     private boolean checkConstraints() {
