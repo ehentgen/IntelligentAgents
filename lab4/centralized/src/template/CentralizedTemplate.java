@@ -148,6 +148,11 @@ public class CentralizedTemplate implements CentralizedBehavior {
 
     private CentralizedPlan localChoice(List<CentralizedPlan> plans,
 	    CentralizedPlan previousPlan, double probability) {
+
+	if (plans.isEmpty()) {
+	    return previousPlan;
+	}
+
 	List<CentralizedPlan> minimumCostPlans = getMinimumCostPlans(plans);
 	CentralizedPlan minimumCostPlan;
 
@@ -201,20 +206,30 @@ public class CentralizedTemplate implements CentralizedBehavior {
 	Map<Task, Integer> time = new HashMap<Task, Integer>();
 	Map<Task, Vehicle> taskToVehicle = new HashMap<Task, Vehicle>();
 
+	// give the first task to the largest vehicle
 	Task firstTask = tasksList.getFirst();
 	vehicleToFirstTask.put(largestVehicle, firstTask);
 	taskToVehicle.put(firstTask, largestVehicle);
 	time.put(firstTask, 1);
 
+	// do not give any task to the other vehicles
 	for (int i = 0; i < numberOfVehicles; ++i) {
 	    Vehicle vehicle = agent.vehicles().get(i);
-	    vehicleToFirstTask.put(vehicle, null);
+	    if (vehicle != largestVehicle) {
+		vehicleToFirstTask.put(vehicle, null);
+	    }
 	}
 
+	// give the remaining tasks to the largest vehicle
 	int i = 2;
 	while (!tasksList.isEmpty()) {
 	    Task task = tasksList.removeFirst();
-	    taskToTask.put(task, tasksList.getFirst());
+
+	    if (!tasksList.isEmpty()) {
+		taskToTask.put(task, tasksList.getFirst());
+	    } else {
+		taskToTask.put(task, null);
+	    }
 	    taskToVehicle.put(task, largestVehicle);
 	    time.put(task, i++);
 	}
@@ -244,8 +259,9 @@ public class CentralizedTemplate implements CentralizedBehavior {
 	for (Vehicle thatVehicle : vehicles) {
 	    Task task = previousPlan.vehicleToFirstTask().get(thisVehicle);
 
-	    if (getCurrentLoad(thatVehicle) + task.weight <= thatVehicle
-		    .capacity()) {
+	    if (task != null
+		    && getCurrentLoad(thatVehicle) + task.weight <= thatVehicle
+			    .capacity()) {
 		CentralizedPlan neighbourPlan = changeFirstTaskBetweenVehicles(
 			previousPlan, thisVehicle, thatVehicle);
 		neighbourPlans.add(neighbourPlan);
@@ -381,6 +397,7 @@ public class CentralizedTemplate implements CentralizedBehavior {
 	    } else if (plan.cost() == minimumCost) {
 		minimumCostPlans.add(plan);
 	    }
+
 	}
 
 	return minimumCostPlans;

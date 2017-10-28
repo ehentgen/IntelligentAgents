@@ -46,23 +46,25 @@ public class CentralizedPlan {
 	for (Vehicle vehicle : vehicles) {
 	    double costPerKm = vehicle.costPerKm();
 
-	    cost += vehicle.getCurrentCity().distanceTo(
-		    vehicleToFirstTask.get(vehicle).pickupCity)
-		    * costPerKm;
-
-	    Task task = taskToTask.get(vehicleToFirstTask.get(vehicle));
-
-	    while (task != null) {
-		cost += task.pickupCity.distanceTo(task.deliveryCity)
+	    if (vehicleToFirstTask.get(vehicle) != null) {
+		cost += vehicle.getCurrentCity().distanceTo(
+			vehicleToFirstTask.get(vehicle).pickupCity)
 			* costPerKm;
 
-		Task nextTask = taskToTask.get(task);
-		if (nextTask != null) {
-		    cost += task.deliveryCity.distanceTo(nextTask.pickupCity)
-			    * costPerKm;
-		}
+		Task task = taskToTask.get(vehicleToFirstTask.get(vehicle));
 
-		task = nextTask;
+		while (task != null) {
+		    cost += task.pickupCity.distanceTo(task.deliveryCity)
+			    * costPerKm;
+
+		    Task nextTask = taskToTask.get(task);
+		    if (nextTask != null) {
+			cost += task.deliveryCity
+				.distanceTo(nextTask.pickupCity) * costPerKm;
+		    }
+
+		    task = nextTask;
+		}
 	    }
 	}
 
