@@ -63,14 +63,25 @@ public class CentralizedTemplate implements CentralizedBehavior {
 	List<Plan> plans = new ArrayList<Plan>();
 	// plans.add(planVehicle1);
 
-	double probability = 0.3;
+	double probability = 0.2;
 	StochasticLocalSearch stochasticLocalSearch = new StochasticLocalSearch(
 		vehicles, tasks, probability, timeout_plan);
 
 	CentralizedPlan centralizedPlan = stochasticLocalSearch.createPlan();
 
 	for (Vehicle vehicle : vehicles) {
-	    plans.add(buildPlan(centralizedPlan, vehicle));
+	    Plan plan = buildPlan(centralizedPlan, vehicle);
+	    System.out.println(plan);
+	    boolean a = stochasticLocalSearch.capacityRespected(
+		    centralizedPlan, vehicle);
+	    System.out.println("capacity:" + a);
+	    boolean b = stochasticLocalSearch.pickupAndDeliveryOrderRespected(
+		    centralizedPlan, vehicle);
+	    System.out.println("order:" + b);
+	    System.out.println(stochasticLocalSearch.constraintsRespected(
+		    centralizedPlan, vehicle));
+
+	    plans.add(plan);
 	}
 	while (plans.size() < vehicles.size()) {
 	    plans.add(Plan.EMPTY);
@@ -112,22 +123,33 @@ public class CentralizedTemplate implements CentralizedBehavior {
 	return plan;
     }
 
-    private Plan buildPlan(CentralizedPlan centralizedPlan, Vehicle vehicle) {
+    public static Plan buildPlan(CentralizedPlan centralizedPlan,
+	    Vehicle vehicle) {
 	City currentCity = vehicle.getCurrentCity();
 	Plan plan = new Plan(currentCity);
 
-	Task task = centralizedPlan.vehicleToFirstTask().get(vehicle);
-	while (task != null) {
-	    for (City city : currentCity.pathTo(task.pickupCity)) {
-		plan.appendMove(city);
+	TaskAction taskAction = centralizedPlan.vehicleToFirstTaskAction().get(
+		vehicle);
+
+	while (taskAction != null) {
+	    Task task = taskAction.task();
+
+	    if (taskAction.status() == TaskAction.PICK_UP) {
+		for (City city : currentCity.pathTo(task.pickupCity)) {
+		    plan.appendMove(city);
+		}
+		plan.appendPickup(task);
+		currentCity = task.pickupCity;
+	    } else if (taskAction.status() == TaskAction.DELIVERY) {
+		for (City city : currentCity.pathTo(task.deliveryCity)) {
+		    plan.appendMove(city);
+		}
+		plan.appendDelivery(task);
+		currentCity = task.deliveryCity;
 	    }
-	    plan.appendPickup(task);
-	    for (City city : task.pickupCity.pathTo(task.deliveryCity)) {
-		plan.appendMove(city);
-	    }
-	    plan.appendDelivery(task);
-	    currentCity = task.deliveryCity;
-	    task = centralizedPlan.taskToTask().get(task);
+
+	    taskAction = centralizedPlan.taskActionToTaskAction().get(
+		    taskAction);
 	}
 	return plan;
     }
