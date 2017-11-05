@@ -63,9 +63,11 @@ public class CentralizedTemplate implements CentralizedBehavior {
 	List<Plan> plans = new ArrayList<Plan>();
 	// plans.add(planVehicle1);
 
-	double probability = 0.2;
+	double probabilityPickMinimumPlan = 0.4;
+	double probabilityPickRandomPlan = 0.3;
 	StochasticLocalSearch stochasticLocalSearch = new StochasticLocalSearch(
-		vehicles, tasks, probability, timeout_plan);
+		vehicles, tasks, probabilityPickMinimumPlan, probabilityPickRandomPlan,
+		timeout_plan);
 
 	CentralizedPlan centralizedPlan = stochasticLocalSearch.createPlan();
 

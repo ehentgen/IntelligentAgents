@@ -17,20 +17,23 @@ public class StochasticLocalSearch {
 
     private final List<Vehicle> vehicles;
     private final TaskSet tasks;
-    private final double probability;
     private final long timeout;
 
     // maximum number of steps with no improvement before the stochastic local
     // search algorithm stops
     private final int COUNTDOWN = 1000; // TODO: optimal value?
+
+    private final double probabilityPickMinimumPlan = 0.4;
+    private final double probabilityPickRandomPlan = 0.3;
+
     private String stochasticLocalSearchStopCause = "";
 
     public StochasticLocalSearch(List<Vehicle> vehicles, TaskSet tasks,
-	    double probability, long timeout) {
+	    double probabilityPickMinimumPlan,
+	    double probabilityPickRandomPlan, long timeout) {
 
 	this.vehicles = vehicles;
 	this.tasks = tasks;
-	this.probability = probability;
 	this.timeout = timeout;
     }
 
@@ -49,7 +52,7 @@ public class StochasticLocalSearch {
 	    CentralizedPlan previousPlan = plan.clone();
 
 	    Set<CentralizedPlan> neighbourPlans = chooseNeighbours(previousPlan);
-	    plan = localChoice(neighbourPlans, previousPlan, probability);
+	    plan = localChoice(neighbourPlans, previousPlan);
 
 	    // check if the search will be stopped because of timeout
 	    long time = System.currentTimeMillis();
@@ -78,7 +81,7 @@ public class StochasticLocalSearch {
     }
 
     private CentralizedPlan localChoice(Set<CentralizedPlan> plans,
-	    CentralizedPlan previousPlan, double probability) {
+	    CentralizedPlan previousPlan) {
 
 	List<CentralizedPlan> plansList = new ArrayList<CentralizedPlan>(plans);
 
@@ -99,11 +102,16 @@ public class StochasticLocalSearch {
 	    minimumCostPlan = minimumCostPlans.get(r);
 	}
 
+	double p1 = probabilityPickMinimumPlan;
+	double p2 = p1 + probabilityPickRandomPlan;
 	double p = random.nextDouble();
-	if (p > probability) {
+	if (p <= p1) {
 	    return minimumCostPlan;
-	} else {
+	} else if (p1 < p && p <= p2) {
 	    return previousPlan;
+	} else {
+	    int r = random.nextInt(plansList.size());
+	    return plansList.get(r);
 	}
     }
 
@@ -134,7 +142,6 @@ public class StochasticLocalSearch {
 
 	return new CentralizedPlan(vehicleToFirstTaskAction,
 		taskActionToTaskAction);
-
     }
 
     // initial solution where all tasks are assigned to the largest vehicle
