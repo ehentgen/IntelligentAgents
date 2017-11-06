@@ -58,9 +58,9 @@ The objective function we optimize is the total travel cost resulting from all p
 
 One possible initial solution consists of assigning all tasks to the vehicle with the largest capacity, in any order. This allows to check the problem is actually solvable: if the weight of the heaviest task exceeds the capacity of the largest vehicle, then there is no solution to this pick up and delivery problem.
 
-In \textbf{vehicleToFirstTaskAction}, we add an entry mapping the largest vehicle to a any task pickup, and map all the other vehicles to the \texttt{null} value.
-In \textbf{taskActionToTaskAction}, we begin by mapping the first task pickup to its corresponding task delivery. We then map this task delivery to any the pickup of any task in the set of remaining tasks, and map the latter task pickup to its corresponding task delivery, and so on.
-Each time a task is selected, we remove it from the set of remaining tasks: the mapping \textbf{taskActionToTaskAction} is complete once the set of remaining tasks is empty.
+In \textit{vehicleToFirstTaskAction}, we add an entry mapping the largest vehicle to a any task pickup, and map all the other vehicles to the \texttt{null} value.
+In \textit{taskActionToTaskAction}, we begin by mapping the first task pickup to its corresponding task delivery. We then map this task delivery to any the pickup of any task in the set of remaining tasks, and map the latter task pickup to its corresponding task delivery, and so on.
+Each time a task is selected, we remove it from the set of remaining tasks: the mapping \textit{taskActionToTaskAction} is complete once the set of remaining tasks is empty.
 
 \subsection{Generating neighbours}
 % Describe how you generate neighbors %
@@ -73,10 +73,9 @@ We firstly generate a potential neighbour plan without enforcing the constraints
 % Describe your stochastic optimization algorithm %
 
 Our stochastic optimization algorithm will stop either because it reaches the timeout limit defined at the beginning of the simulation, or because there was no improvement in the cost of the plan for a certain number of iterations.
+For selecting the next plan, it uses a local choice function which, depending on a certain probability distribution, returns a neighbouring minimal cost plan, the current plan, or a random plan (which can be a minimal cost plan). This is because systematically returning a minimal cost plan may lead the stochastic local search to get stuck in a local minimum. This also depends on the initial solution defined at the setup.
 
-For selecting the next plan, it uses a local choice function which depending on the probability distribution defined at the setup, returns a neighbouring minimal cost plan, the current plan, or a random plan. This is because systematically returning a minimal cost plan may lead the stochastic local search to get stuck in a local minimum.
-
-\begin{algorithm}[t]
+\begin{algorithm}[h]
 \caption{Stochastic Local Search}
 \begin{algorithmic}[0]
 \Statex \textsc{Input}
@@ -120,15 +119,51 @@ For selecting the next plan, it uses a local choice function which depending on 
 \subsection{Experiment 1: Model parameters}
 % if your model has parameters, perform an experiment and analyze the results for different parameter values %
 
+Our SLS algorithm has three parameters: the probability that a minimum cost plan is selected, the probability that a random plan is selected, and the maximum number of iterations without improvement before the search stops.
+
 \subsubsection{Setting}
 % Describe the settings of your experiment: topology, task configuration, number of tasks, number of vehicles, etc. %
 % and the parameters you are analyzing %
+We mostly tested the performance of the SLS algorithm for different probability distributions: as long as the number of iterations without improvement is "large enough", its influence on the cost of the plan is going to be limited. We observed that with a value of 10000, the cost of the plan found by the SLS is relatively stable across multiple simulations.
+For these simulations, we kept the initial seed of 12345.
 
 \subsubsection{Observations}
 % Describe the experimental results and the conclusions you inferred from these results %
 
+\begin{tabular}{|l|llll|llll|}
+\hline
+number of tasks & 20 & & & & 30 & & & \\
+\hline
+$p_{minimum\ cost\ plan}$ & 0.3 & 0.4 & 0.5 & 0.8 & 0.3 & 0.4 & 0.5 & 0.8\\
+$p_{random\ plan}$        & 0.6 & 0.3 & 0.2 & 0.1 & 0.6 & 0.3 & 0.2 & 0.1\\
+$p_{current\ plan}$       & 0.1 & 0.3 & 0.3 & 0.1 & 0.1 & 0.3 & 0.3 & 0.1\\
+\hline
+minimum cost observed & 11 321 &  10 249 & 11 157 & 9 943  &  15 226 & 15 944 & 16 282 & 13 062 \\
+execution time (ms)   & 82 873 & 142 337 & 72 218 & 76 832 & 302 017 & 302 217 & 186 292 & 263 720\\ 
+\hline
+maximum cost observed & 15 706 & 18 839 & 22 513 & 15 593  &  30 582 & 37 728 & 19 584 & 22 122\\
+execution time (ms)   & 70 200 & 74 914 & 71 191 & 53 445  & 246 548 & 249 670 & 302 029 & 203 105\\
+\hline
+\end{tabular}
+\captionof{table}{}
+\label{table:model_parameters}
+%There were more variations in the plan cost and execution time when the probability of picking a random plan were large: for some simulations, the plan found had a low cost, comparable to other setups that tended to pick a minimum cost plan more often, but the largest costs occurred here.
+
+For all the different steps, we observed that for a larger execution time, the plan cost was not necessarily lower.
+What is more, a plan having a similar cost to another could at the same time have been found in twice as much time.
+
+For a relatively large probability of picking a minimum cost plan, even though most of the time, the plan found has a rather low cost, some of the other plans turned out to have a quite large cost, which confirms our intuition about the likeliness of getting stuck in a local minimum. 
+
+What is interesting as well is that the cost of a plan does not significantly increase from 20 tasks to 30 tasks: the SLS algorithm manages to combine pickups and deliveries so that the cost of a suboptimal plan remains in the same range.
+The time it takes to find a plan is significantly longer though.
+
+What is more, when the company has to deliver 30 tasks, for most simulations, the search of the plan does not stop because there is no improvement after a given number of iterations, but actually times out (when 303 000 ms is reached).
+
 \subsection{Experiment 2: Different configurations}
 % Run simulations for different configurations of the environment (i.e. different tasks and number of vehicles) %
+
+We observed that for a large number of tasks, the SLS tends to assign all tasks or nearly all tasks to a single vehicle (the vehicle that initially gets all the tasks), and one or two to a second vehicle.
+This may be because there is a much larger number of neighbouring plans where the order of the tasks is changed, that neighbouring plans that give the first task of a vehicle to another one. 
 
 \subsubsection{Setting}
 % Describe the settings of your experiment: topology, task configuration, number of tasks, number of vehicles, etc. %
@@ -137,5 +172,8 @@ For selecting the next plan, it uses a local choice function which depending on 
 % Describe the experimental results and the conclusions you inferred from these results %
 % Reflect on the fairness of the optimal plans. Observe that optimality requires some vehicles to do more work than others. %
 % How does the complexity of your algorithm depend on the number of vehicles and various sizes of the task set? %
+
+
+If we added a time constraint in the simulation - the company's vehicle must deliver the tasks within a given amount of time, and are penalized in they do not - then the corresponding SLS algorithm would most likely tend to assign the tasks to multiple vehicles.
 
 \end{document}

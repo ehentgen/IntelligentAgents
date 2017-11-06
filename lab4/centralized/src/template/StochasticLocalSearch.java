@@ -21,7 +21,7 @@ public class StochasticLocalSearch {
 
     // maximum number of steps with no improvement before the stochastic local
     // search algorithm stops
-    private final int COUNTDOWN = 1000; // TODO: optimal value?
+    private final int COUNTDOWN = 10000; // TODO: optimal value?
 
     private final double probabilityPickMinimumPlan = 0.4;
     private final double probabilityPickRandomPlan = 0.3;
@@ -29,12 +29,13 @@ public class StochasticLocalSearch {
     private String stochasticLocalSearchStopCause = "";
 
     public StochasticLocalSearch(List<Vehicle> vehicles, TaskSet tasks,
-	    double probabilityPickMinimumPlan,
-	    double probabilityPickRandomPlan, long timeout) {
+	    long timeout) {
 
 	this.vehicles = vehicles;
 	this.tasks = tasks;
 	this.timeout = timeout;
+
+	assert (probabilityPickMinimumPlan + probabilityPickRandomPlan <= 1.0);
     }
 
     public CentralizedPlan createPlan() {
@@ -57,7 +58,11 @@ public class StochasticLocalSearch {
 	    // check if the search will be stopped because of timeout
 	    long time = System.currentTimeMillis();
 	    long duration = time - time_start;
-	    if (duration >= timeout) {
+
+	    // stop some ms before the timeout, because we do not want to
+	    // effectively timeout (and throw a TimeOutException)
+	    int margin = 1000;
+	    if (duration >= timeout - margin) {
 		timedOut = true;
 		stochasticLocalSearchStopCause = "Timeout reached: " + timeout
 			+ " ms.";
@@ -175,8 +180,6 @@ public class StochasticLocalSearch {
 
 	Map<Vehicle, TaskAction> vehicleToFirstTaskAction = new HashMap<Vehicle, TaskAction>();
 	Map<TaskAction, TaskAction> taskActionToTaskAction = new HashMap<TaskAction, TaskAction>();
-	// Map<Task, Integer> time = new HashMap<Task, Integer>();
-	// Map<Task, Vehicle> taskToVehicle = new HashMap<Task, Vehicle>();
 
 	// give the first task to the largest vehicle
 	Task firstTask = tasksList.removeFirst();
@@ -189,8 +192,6 @@ public class StochasticLocalSearch {
 		firstTaskaction_delivery);
 	taskActionToTaskAction.put(firstTaskaction_delivery, new TaskAction(
 		tasksList.getFirst(), TaskAction.PICK_UP));
-	// taskToVehicle.put(firstTask, largestVehicle);
-	// time.put(firstTask, 1);
 
 	// do not give any task to the other vehicles
 	for (int i = 0; i < numberOfVehicles; ++i) {
@@ -202,7 +203,6 @@ public class StochasticLocalSearch {
 
 	// give the remaining tasks to the largest vehicle
 	// by default, the vehicle will pick up and deliver tasks sequentially
-	// int i = 2;
 	while (!tasksList.isEmpty()) {
 	    Task task = tasksList.removeFirst();
 
@@ -219,8 +219,6 @@ public class StochasticLocalSearch {
 		taskActionToTaskAction.put(new TaskAction(task,
 			TaskAction.DELIVERY), null);
 	    }
-	    // taskToVehicle.put(task, largestVehicle);
-	    // time.put(task, i++);
 	}
 
 	CentralizedPlan plan = new CentralizedPlan(vehicleToFirstTaskAction,
@@ -358,10 +356,6 @@ public class StochasticLocalSearch {
 	neighbourPlan.setNextTask(vehicle_2, taskAction_pickup);
 	neighbourPlan.setNextTask(taskAction_pickup, taskAction_delivery);
 
-	// neighbourPlan.updateTime(v1);
-	// neighbourPlan.updateTime(v2);
-	// neighbourPlan.setVehicle(task, v2);
-
 	return neighbourPlan;
     }
 
@@ -433,46 +427,6 @@ public class StochasticLocalSearch {
 	return neighbourPlan;
     }
 
-    /*
-     * private CentralizedPlan changeTaskOrder(CentralizedPlan plan, Vehicle
-     * vehicle, int taskIndex_1, int taskIndex_2) {
-     * 
-     * CentralizedPlan neighbourPlan = new CentralizedPlan(plan);
-     * 
-     * // retrieving the first taskAction to exchange TaskAction
-     * previousTaskAction_1 = null; TaskAction taskAction_1 =
-     * neighbourPlan.vehicleToFirstTaskAction().get( vehicle); int count = 1;
-     * 
-     * while (count < taskIndex_1) { previousTaskAction_1 = taskAction_1;
-     * taskAction_1 = neighbourPlan.taskActionToTaskAction().get( taskAction_1);
-     * ++count; }
-     * 
-     * // retrieving the second taskAction to exchange TaskAction
-     * nextTaskAction_1 = neighbourPlan.taskActionToTaskAction()
-     * .get(taskAction_1); TaskAction previousTaskAction_2 = taskAction_1;
-     * TaskAction taskAction_2 = neighbourPlan.taskActionToTaskAction().get(
-     * previousTaskAction_2); ++count;
-     * 
-     * while (count < taskIndex_2) { previousTaskAction_2 = taskAction_2;
-     * taskAction_2 = neighbourPlan.taskActionToTaskAction().get( taskAction_2);
-     * ++count; }
-     * 
-     * TaskAction nextTaskAction_2 = neighbourPlan.taskActionToTaskAction()
-     * .get(taskAction_2);
-     * 
-     * // exchanging the two tasks if (nextTaskAction_1 == taskAction_2) {
-     * neighbourPlan.setNextTask(previousTaskAction_1, taskAction_2);
-     * neighbourPlan.setNextTask(taskAction_2, taskAction_1);
-     * neighbourPlan.setNextTask(taskAction_1, previousTaskAction_2); } else {
-     * neighbourPlan.setNextTask(previousTaskAction_1, taskAction_2);
-     * neighbourPlan.setNextTask(previousTaskAction_2, taskAction_1);
-     * neighbourPlan.setNextTask(taskAction_2, nextTaskAction_1);
-     * neighbourPlan.setNextTask(taskAction_1, nextTaskAction_2); } //
-     * neighbourPlan.updateTime(vehicle);
-     * 
-     * System.out.println(neighbourPlan); return neighbourPlan; }
-     */
-
     private Vehicle selectRandomVehicle(CentralizedPlan plan) {
 	Random random = new Random();
 	int numberOfVehicles = vehicles.size();
@@ -492,13 +446,12 @@ public class StochasticLocalSearch {
     }
 
     private List<CentralizedPlan> getMinimumCostPlans(
-	    List<CentralizedPlan> plans, CentralizedPlan previousPlan) {
+	    List<CentralizedPlan> plans, CentralizedPlan currentPlan) {
 
-	// TODO: check is difference between choosing Double.MAX_VALUE and
-	// previousPlan.cost()
+	// all the neighbouring plans may have a cost worse than the current
+	// plan
+	double minimumCost = Double.MAX_VALUE;
 
-	// double minimumCost = Double.MAX_VALUE;
-	double minimumCost = previousPlan.cost();
 	List<CentralizedPlan> minimumCostPlans = new ArrayList<CentralizedPlan>();
 
 	for (CentralizedPlan plan : plans) {
@@ -510,6 +463,11 @@ public class StochasticLocalSearch {
 		minimumCostPlans.add(plan);
 	    }
 	}
+
+	if (minimumCostPlans.isEmpty()) {
+	    minimumCostPlans.add(currentPlan);
+	}
+
 	return minimumCostPlans;
     }
 
