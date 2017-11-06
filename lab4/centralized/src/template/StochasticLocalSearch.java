@@ -294,12 +294,10 @@ public class StochasticLocalSearch {
 				TaskAction taskAction_1 = taskActionList.get(taskActionIndex_1);
 
 				for (int taskActionIndex_2 = taskActionIndex_1 + 1; taskActionIndex_2 < length; ++taskActionIndex_2) {
-					TaskAction taskAction_2 = taskActionList
-							.get(taskActionIndex_2);
+					TaskAction taskAction_2 = taskActionList.get(taskActionIndex_2);
 
 					CentralizedPlan neighbourPlan = changeTaskOrder(
-							previousPlan, thisVehicle, taskAction_1,
-							taskAction_2);
+							previousPlan, thisVehicle, taskAction_1, taskAction_2);
 					// [maybe]
 					// only consider this plan if the constraints are respected
 					// (only the plan for thisVehicle needs to be checked)
@@ -327,25 +325,45 @@ public class StochasticLocalSearch {
 		TaskAction taskAction_pickup = plan.vehicleToFirstTaskAction().get(
 				vehicle_1);
 
+		//We retrieve the position of the delivery (first action, first vehicle) 
+		// and its previous task
 		TaskAction previousTaskAction_delivery = null;
 		TaskAction taskAction_delivery = null;
+		
+		//**
+		//v1 has to deliver the task, so we never reach a nullpointer
 		TaskAction p = plan.taskActionToTaskAction().get(taskAction_pickup);
-		while (p != null) {
-			if (p.task().equals(taskAction_pickup.task())) {
-				taskAction_delivery = p;
-			}
-
+		while (!p.task().equals(taskAction_pickup.task())) {
 			p = plan.taskActionToTaskAction().get(p);
 		}
-
+		taskAction_delivery = p;
+		
+//		while (p != null) {
+//			if (p.task().equals(taskAction_pickup.task())) {
+//				taskAction_delivery = p;
+//			}
+//			p = plan.taskActionToTaskAction().get(p);
+//		}
+		//**
+		
 		TaskAction p2 = plan.taskActionToTaskAction().get(taskAction_pickup);
+		
+		
+		//Simpler but doesn't seems to work..?
+//		while (!taskAction_delivery.equals(neighbourPlan.taskActionToTaskAction().get(p2))) {
+//			p2 = plan.taskActionToTaskAction().get(p2);
+//		}
+//		previousTaskAction_delivery = p2;
+		
 		while (p2 != null) {
-			if (taskAction_delivery.equals(neighbourPlan
-					.taskActionToTaskAction().get(p2))) {
+			if (taskAction_delivery.equals(neighbourPlan.taskActionToTaskAction().get(p2))) {
 				previousTaskAction_delivery = p2;
 			}
 			p2 = plan.taskActionToTaskAction().get(p2);
 		}
+		
+		
+		
 
 		// redefine the mapping of the taskActions for vehicle_1
 		if (taskAction_delivery.equals(neighbourPlan.taskActionToTaskAction()
@@ -458,6 +476,12 @@ public class StochasticLocalSearch {
 		return vehicle;
 	}
 
+	/**
+	 * Returns either the unique/list smallest cost plan(s) between all plans. 
+	 * @param plans
+	 * @param currentPlan
+	 * @return a list of one or multiple lower cost plans
+	 */
 	private List<CentralizedPlan> getMinimumCostPlans(
 			List<CentralizedPlan> plans, CentralizedPlan currentPlan) {
 
@@ -476,11 +500,6 @@ public class StochasticLocalSearch {
 				minimumCostPlans.add(plan);
 			}
 		}
-
-		/*
-		 * if (minimumCostPlans.isEmpty()) { System.out.println("KIKOOO");
-		 * minimumCostPlans.add(currentPlan); }
-		 */
 		return minimumCostPlans;
 	}
 
