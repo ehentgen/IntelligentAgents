@@ -21,7 +21,7 @@ public class StochasticLocalSearch {
 
 	// maximum number of steps with no improvement before the stochastic local
 	// search algorithm stops
-	private final int COUNTDOWN = 1000;
+	private final int COUNTDOWN = 10000;
 
 	private final double probabilityPickMinimumPlan = 0.4;
 	private final double probabilityPickRandomPlan = 0.3;
@@ -361,9 +361,6 @@ public class StochasticLocalSearch {
 			}
 			p2 = plan.taskActionToTaskAction().get(p2);
 		}
-		
-		
-		
 
 		// redefine the mapping of the taskActions for vehicle_1
 		if (taskAction_delivery.equals(neighbourPlan.taskActionToTaskAction()
