@@ -167,7 +167,9 @@ public class StochasticLocalSearch {
 		TaskAction.PICK_UP);
 	TaskAction firstTaskaction_delivery = new TaskAction(firstTask,
 		TaskAction.DELIVERY);
+
 	vehicleToFirstTaskAction.put(largestVehicle, firstTaskaction_pickup);
+
 	taskActionToTaskAction.put(firstTaskaction_pickup,
 		firstTaskaction_delivery);
 	taskActionToTaskAction.put(firstTaskaction_delivery, new TaskAction(
@@ -183,9 +185,9 @@ public class StochasticLocalSearch {
 
 	// give the remaining tasks to the largest vehicle
 	// by default, the vehicle will pick up and deliver tasks sequentially
+	Task task = null;
 	while (!tasksList.isEmpty()) {
-	    Task task = tasksList.removeFirst();
-
+	    task = tasksList.removeFirst();
 	    taskActionToTaskAction.put(
 		    new TaskAction(task, TaskAction.PICK_UP), new TaskAction(
 			    task, TaskAction.DELIVERY));
@@ -195,11 +197,10 @@ public class StochasticLocalSearch {
 		taskActionToTaskAction.put(new TaskAction(task,
 			TaskAction.DELIVERY), new TaskAction(nextTask,
 			TaskAction.PICK_UP));
-	    } else {
-		taskActionToTaskAction.put(new TaskAction(task,
-			TaskAction.DELIVERY), null);
 	    }
 	}
+	taskActionToTaskAction.put(new TaskAction(task, TaskAction.DELIVERY),
+		null);
 
 	return new CentralizedPlan(vehicleToFirstTaskAction,
 		taskActionToTaskAction);
@@ -329,18 +330,38 @@ public class StochasticLocalSearch {
 	TaskAction taskAction_pickup = plan.vehicleToFirstTaskAction().get(
 		vehicle_1);
 
+	// We retrieve the position of the delivery (first action, first
+	// vehicle)
+	// and its previous task
 	TaskAction previousTaskAction_delivery = null;
 	TaskAction taskAction_delivery = null;
-	TaskAction p = plan.taskActionToTaskAction().get(taskAction_pickup);
-	while (p != null) {
-	    if (p.task().equals(taskAction_pickup.task())) {
-		taskAction_delivery = p;
-	    }
 
+	// **
+	// v1 has to deliver the task, so we never reach a nullpointer
+	TaskAction p = plan.taskActionToTaskAction().get(taskAction_pickup);
+	while (!p.task().equals(taskAction_pickup.task())) {
 	    p = plan.taskActionToTaskAction().get(p);
 	}
+	taskAction_delivery = p;
+
+	// while (p != null) {
+	// if (p.task().equals(taskAction_pickup.task())) {
+	// taskAction_delivery = p;
+	// }
+	// p = plan.taskActionToTaskAction().get(p);
+	// }
+	// **
 
 	TaskAction p2 = plan.taskActionToTaskAction().get(taskAction_pickup);
+
+	// Simpler but doesn't seems to work..?
+	// while
+	// (!taskAction_delivery.equals(neighbourPlan.taskActionToTaskAction().get(p2)))
+	// {
+	// p2 = plan.taskActionToTaskAction().get(p2);
+	// }
+	// previousTaskAction_delivery = p2;
+
 	while (p2 != null) {
 	    if (taskAction_delivery.equals(neighbourPlan
 		    .taskActionToTaskAction().get(p2))) {
@@ -460,6 +481,13 @@ public class StochasticLocalSearch {
 	return vehicle;
     }
 
+    /**
+     * Returns either the unique/list smallest cost plan(s) between all plans.
+     * 
+     * @param plans
+     * @param currentPlan
+     * @return a list of one or multiple lower cost plans
+     */
     private List<CentralizedPlan> getMinimumCostPlans(
 	    List<CentralizedPlan> plans, CentralizedPlan currentPlan) {
 
@@ -478,11 +506,6 @@ public class StochasticLocalSearch {
 		minimumCostPlans.add(plan);
 	    }
 	}
-
-	/*
-	 * if (minimumCostPlans.isEmpty()) { System.out.println("KIKOOO");
-	 * minimumCostPlans.add(currentPlan); }
-	 */
 	return minimumCostPlans;
     }
 
