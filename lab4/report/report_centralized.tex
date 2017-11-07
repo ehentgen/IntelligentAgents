@@ -205,9 +205,10 @@ average cost observed & 13 464 & 16 112 & 13 867 & 14 599 & 22 778 & 25 610 & 20
 \label{table:model_parameters_2}
 \vspace{4mm}
 
-With this different initial solution, the SLS algorithm still tends to distribute all tasks between one or two vehicles.
+With this different initial solution, the SLS algorithm still tends to distribute all tasks between one or two vehicles, the others having not task assigned.
 And it turned out that among all these suboptimal plans, the best ones often had only a single vehicle.
+Here, we presented the results when the SLS algorithm times out. For a lower maximum number of iterations without improvement (e.g. 10 000), when there are 20 tasks, the algorithm usually stops before the timeout. When there are 30 tasks though, the algorithm often still times out.
 
-If we added a time constraint in the simulation - the company's vehicle must deliver the tasks within a given amount of time, and are penalized in they do not - then the corresponding SLS algorithm would most likely tend to assign the tasks to multiple vehicles.
+If we added a time constraint in the simulation - the company's vehicle must deliver the tasks within a given amount of time, and are penalized if they do not - then the corresponding SLS algorithm would most likely tend to assign the tasks to multiple vehicles instead of only one.
 
 \end{document}
