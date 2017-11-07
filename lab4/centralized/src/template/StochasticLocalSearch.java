@@ -23,8 +23,8 @@ public class StochasticLocalSearch {
 	// search algorithm stops
 	private final int COUNTDOWN = 10000;
 	
-	private final double probabilityPickMinimumPlan = 0.4;
-	private final double probabilityPickOld = 0.4;
+	private final double probabilityPickMinimumPlan = 0.7;
+	private final double probabilityPickOld = 0.1;
 
 	private String stochasticLocalSearchStopCause = "";
 

@@ -51,6 +51,7 @@ public class CentralizedTemplate implements CentralizedBehavior {
 	this.topology = topology;
 	this.distribution = distribution;
 	this.agent = agent;
+	
     }
 
     @Override
