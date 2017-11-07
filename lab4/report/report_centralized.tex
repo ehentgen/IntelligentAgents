@@ -2,7 +2,7 @@
 
 \usepackage{amsmath}
 \usepackage{textcomp}
-\usepackage[top=20mm, bottom=18mm, left=24mm, right=20mm]{geometry}
+\usepackage[top=20mm, bottom=16mm, left=22mm, right=18mm]{geometry}
 % Add other packages here %
 \usepackage{algorithm}
 \usepackage{algpseudocode}
@@ -47,7 +47,7 @@ We (explicitly) enforce 2 constraints:
 \item[--] The delivery of a task cannot happen before the pickup of this same task.
 \end{itemize}
 
-Otherwise, constraints such that 'all tasks must be delivered' are enforced by the design of our SLS algorithm.
+Otherwise, constraints such as 'all tasks must be delivered' are enforced by the design of our SLS algorithm.
 
 \subsection{Objective function}
 % Describe the function that you optimize %
@@ -70,7 +70,6 @@ We firstly generate a potential neighbour plan without enforcing the constraints
 
 \subsection{Stochastic optimization algorithm}
 % Describe your stochastic optimization algorithm %
-
 Our stochastic optimization algorithm will stop either because it reaches the timeout limit defined at the beginning of the simulation, or because there was no improvement in the cost of the plan for a certain number of iterations.
 For selecting the next plan, it uses a local choice function which, depending on a certain probability distribution, returns a neighbouring minimal cost plan, the current plan, or a random plan (which can be a minimal cost plan). This is because systematically returning a minimal cost plan may lead the stochastic local search to get stuck in a local minimum. This also depends on the initial solution defined at the setup.
 
@@ -83,32 +82,33 @@ For selecting the next plan, it uses a local choice function which, depending on
 \Statex \textsc{Output}
 \Statex \hspace{\algorithmicindent} Plan \textit{plan} \Comment{a (sub)optimal plan}
 
-\State	
-\State $initialCountdown \gets 100 000$, $countdown \gets initialCountdown$
+\State
+\State $initialCountdown \gets 100\ 000$, $countdown \gets initialCountdown$ 
 \State $hasTimedOut \gets False$, $noImprovement \gets False$
 \State $minimumCostAchieved \gets  \infty$
-\State $plan \gets  selectInitialSolution(tasks)$
+\State $plan \gets  selectInitialSolution(tasks)$, $bestPlan \gets null$
 \State
 \While{((not $hasTimedOut$) and (not $noImprovement$))}
 \State $previousPlan \gets plan$
-\State $neighbourPlans \gets chooseNeighbours(previousPlan)$
-\State $plan \gets localChoice(neighbourPlans)$
+\State $neighbourPlans \gets chooseNeighbours(previousPlan)$ \Comment{returns the neighbours of the current plan}
+\State $plan \gets localChoice(neighbourPlans)$ \Comment{selects the next plan}
 \State
-\If{$(duration > timeout)$} 
-	\State $timeOut \gets True$
-\EndIf
+\If{$(duration \geq timeout)$}  \Comment{in practice, subtract a margin to the \textit{timeout}}
+	\State $timeOut \gets True$ \Comment{(e.g. 1s) so that the algorithm stops before it}
+\EndIf                          \Comment{\textit{effectively} times out \hspace{38mm}}
 
 \If{$(plan.cost >= minimumCostAchieved)$}
 	\State $--countdown$
 \Else
 	\State $countdown \gets initialCountdown$
 	\State $minimumCostAchieved \gets plan.cost$
+	\State $bestPlan \gets plan$
 \EndIf
 \If{$(countdown = 0)$}
 	\State $noImprovement \gets True$
 \EndIf
 \EndWhile
-\State \Return $plan$
+\State \Return $bestPlan$
 \end{algorithmic}
 \end{algorithm}
 
@@ -121,94 +121,80 @@ Our SLS algorithm has three parameters: the probability that a minimum cost plan
 \subsubsection{Setting}
 % Describe the settings of your experiment: topology, task configuration, number of tasks, number of vehicles, etc. %
 % and the parameters you are analyzing %
-We mostly tested the performance of the SLS algorithm for different probability distributions: as long as the number of iterations without improvement is "large enough", its influence on the cost of the plan is going to be limited. We observed that for low values such as 10 000, the SLS algorithm tends to stop because there is no more improvement. Therefore, we set this value to 100 000, such that the algorithm times out for most simulations (when 303 000 ms is reached): this way, we are guaranteed the search did not stop "too soon".
+We mostly tested the performance of the SLS algorithm for different probability distributions. 
+If the maximum number of iterations is "large enough", but not "too large", the SLS algorithm often manages to find a (sub)optimal plan before it actually times out (which happens after 303 000 ms). 
+A value of 10 000 seems reasonable: the algorithm does not stop too early, and still manages too find a plan with a cost consistent throughout multiple simulations. 
 For these simulations, we kept the initial seed of 12345.
 
 \subsubsection{Observations}
 % Describe the experimental results and the conclusions you inferred from these results %
-We report the minimum observed cost and maximum observed cost of the suboptimal plans, over roughly 6 simulations per configuration, with a maximum number of iterations without improvement of 100 000.\\
+We report the minimum observed cost, maximum observed cost and average cost of the suboptimal plans, as well as the average execution time, over roughly 6 simulations per configuration.\\
 
-\begin{tabular}{|l|llll|llll|}
+\begin{tabular}{|l|rrrr|rrrr|}
 \hline
 number of tasks & 20 & & & & 30 & & & \\
 \hline
-$p_{minimum\ cost\ plan}$ & 0.3 & 0.4 & 0.5 & 0.8 & 0.3 & 0.4 & 0.5 & 0.8\\
-$p_{random\ plan}$        & 0.6 & 0.3 & 0.2 & 0.1 & 0.6 & 0.3 & 0.2 & 0.1\\
-$p_{current\ plan}$       & 0.1 & 0.3 & 0.3 & 0.1 & 0.1 & 0.3 & 0.3 & 0.1\\
+$p_{minimum\ cost\ plan}$ & 0.3 & 0.4 & 0.5 & 0.7 & 0.3 & 0.4 & 0.5 & 0.7\\
+$p_{current\ plan}$       & 0.5 & 0.4 & 0.3 & 0.1 & 0.5 & 0.4 & 0.3 & 0.1\\
+$p_{random\ plan}$        & 0.2 & 0.2 & 0.2 & 0.2 & 0.2 & 0.2 & 0.2 & 0.2\\
 \hline
-minimum cost observed & 9 347 &  10 249 & 10 321 & 9 347  &  15 226 & 14 236 & 14 946 & 13 062 \\
-%execution time (ms)   & 302 009 & 142 337 & 302 010 & 302 067 & 302 017 & 302 013 & 302 013 & 263 720\\ 
-%\hline
-maximum cost observed & 14 201 & 20 811 & 22 513 & 15 593  &  30 582 & 37 728 & 23 646 & 22 122\\
-%execution time (ms)   & 302 022 & 302 010 & 71 191 & 53 445  & 246 548 & 249 670 & 302 011 & 203 105\\
+minimum cost observed &  9 347 &  9 347 &  9 347 &  9 347 & 13 484 & 12 876 & 12 451 & 11 559\\
+maximum cost observed & 10 072 & 10 679 & 11 931 & 11 429 & 16 693 & 15 144 & 14 492 & 15 392\\
+%minimum cost observed & 9 347 & 9347 & 9347 & 9 347 & & & & \\
+%maximum cost observed & 10 925 & 10 066 & 10 924 & 11 662 & & & & \\
 \hline
-average cost observed & 11 348 & 15 897 & 14 912 & 11 390 & 19 513 & 19 167 & 17 797 & 15 971 \\
+average cost                &  9 627 &  9 894 & 10 246 & 10 248 &  14 325 &  13 715 &  13 567 & 13 382\\
+average execution time (ms) & 95 207 & 95 774 & 71 630 & 86 475 & 161 027 & 227 860 & 200 463 & 209 973\\
+%average cost & 9960 & 9620 & 9661 & 10 096 & & & & \\
+%average execution time (ms) & 32 248 & 37 951 & 32 836 & 38 154 & & & & \\
 \hline
 \end{tabular}
-\captionof{table}{seed: 12345, countdown: 100 000, initial solution: assigns all tasks to the largest vehicle}
+\captionof{table}{seed: 12345, countdown: 10 000, initial solution: assigns all tasks to the largest vehicle}
 \label{table:model_parameters}
 \vspace{4mm}
+For a relatively large probability of picking a minimum cost plan, most of the time, the plan found repeatedly reaches a low cost, particularly for 20 tasks. Some plans however turn out to have a somewhat larger cost, which confirms our intuition about getting stuck in a local minimum. 
+For 30 tasks, the execution time is significantly longer, and the different probability distributions to not systematically find the lowest cost plan. In fact, the SLS algorithm sometimes times out, which is most likely because the complexity of the problem is now much larger than before.
 
-%15226 + 30582 + 16305 + 21311 + 16585 + 17073
-%15944 + 37728 + 14276 + 18310 + 14512 + 14236
-%16282 + 19584 + 23646 + 14946 + 17331 + 14993
-%13062 + 22122 + 14097 + 15822 + 15837 + 14890
-
-%11321 + 9347 + 14201 + 11429 + 10321 + 11470
-%10249 + 18839 + 13278 + 18273 + 20811 + 14075 + 15754
-%11157 + 22513 + 14537 + 18749 + 12744 + 14366 + 10321
-%9943 + 15593 + 9653 + 13699 + 9347 + 9653 + 11842
-
-%For all the different steps, we observed that for a larger execution time, the plan cost was not necessarily lower.
-%What is more, a plan having a similar cost to another could at the same time have been found in twice as much time.
-
-For a relatively large probability of picking a minimum cost plan, even though most of the time, the plan found has a rather low cost, some of the other plans turned out to have a quite large cost, which confirms our intuition about the likeliness of getting stuck in a local minimum. 
-In average though, setting this probability to a high value, so that the SLS algorithm converges faster, resulted in lower plan costs.
-
-What is interesting as well is that the cost of a plan does not significantly increase from 20 tasks to 30 tasks: the SLS algorithm manages to combine pickups and deliveries so that the cost of a suboptimal plan remains in the same range.
-
-%The time it takes to find a plan is significantly longer though: 
-%When the company has to deliver 30 tasks, for most simulations, the search of the plan does not stop because there is no improvement after a given number of iterations, but actually times out (when 303 000 ms is reached).
+%On average though, setting this probability to a high value, so that the SLS algorithm converges faster, resulted in lower plan costs.
+%What is interesting as well is that the cost of a plan does not significantly increase from 20 tasks to 30 tasks: the SLS algorithm manages to combine pickups and deliveries so that the cost of a suboptimal plan remains in the same range.
 
 \subsection{Experiment 2: Different configurations}
 % Run simulations for different configurations of the environment (i.e. different tasks and number of vehicles) %
-We observed that for a large number of tasks, the SLS algorithm tends to assign all tasks, or nearly all tasks, to a single vehicle (the vehicle that initially gets all the tasks), and just one or two to a second vehicle.
-This may be because the number of neighbouring plans where the order of the tasks is changed is much larger than the number of neighbouring plans giving the first task of a vehicle to another one. 
+We observed that for a large number of tasks (e.g. 20 or more), the SLS algorithm tends to assign all tasks to a single vehicle (the vehicle that initially gets all the tasks).
+There may be two reasons for this. One may be that the number of neighbouring plans where the order of the tasks is changed is much larger than the number of neighbouring plans giving the first task of a vehicle to another one. 
+The other may be that it is simply cheaper and easily feasible to have a unique vehicle doing all the work, since there are many tasks to deliver, and only few cities: a large enough vehicle capacity combined with tasks of small weights gives the vehicle a certain flexibility for the order in which tasks can be picked up and delivered - a flexibility which is not necessarily larger when there are more vehicles involved.
 In this experiment, we want to compare the performance of the SLS algorithm for a different initial solution. 
 \subsubsection{Setting}
 % Describe the settings of your experiment: topology, task configuration, number of tasks, number of vehicles, etc. %
-We kept the same setting as in Experiment 1, only the initial solution has changed: at the beginning, each vehicle now receives roughly the same number of tasks, as long as it can carry each one of them.
+We kept the same setting as in Experiment 1, except for the initial solution: at the beginning, each vehicle now receives roughly the same number of tasks, as long as it can carry each one of them.
 
 \subsubsection{Observations}
 % Describe the experimental results and the conclusions you inferred from these results %
 % Reflect on the fairness of the optimal plans. Observe that optimality requires some vehicles to do more work than others. %
 % How does the complexity of your algorithm depend on the number of vehicles and various sizes of the task set? %
 
-\begin{tabular}{|l|llll|llll|}
+\begin{tabular}{|l|rrrr|rrrr|}
 \hline
 number of tasks & 20 & & & & 30 & & & \\
 \hline
-$p_{minimum\ cost\ plan}$ & 0.3 & 0.4 & 0.5 & 0.8 & 0.3 & 0.4 & 0.5 & 0.8\\
-$p_{random\ plan}$        & 0.6 & 0.3 & 0.2 & 0.1 & 0.6 & 0.3 & 0.2 & 0.1\\
-$p_{current\ plan}$       & 0.1 & 0.3 & 0.3 & 0.1 & 0.1 & 0.3 & 0.3 & 0.1\\
+$p_{minimum\ cost\ plan}$ & 0.3 & 0.4 & 0.5 & 0.7 & 0.3 & 0.4 & 0.5 & 0.7\\
+$p_{current\ plan}$       & 0.5 & 0.4 & 0.3 & 0.1 & 0.5 & 0.4 & 0.3 & 0.1\\
+$p_{random\ plan}$        & 0.2 & 0.2 & 0.2 & 0.2 & 0.2 & 0.2 & 0.2 & 0.2\\
 \hline
-minimum cost observed & 9 888  & 12 871 & 9 347 & 9 865 & 18 041  & 16 375 & 15 939 & 16 914 \\
-%execution time (ms)   & 302 009 & 302 010 & 302 010 & 302 009 & 302 010 & 302 023 & 302 029 & 302 010\\ 
-%\hline
-maximum cost observed & 16 696 & 21 048 & 24 352 & 19 072 & 26 311 & 38 715 & 26 591 & 25 360\\
-%execution time (ms)   & 302 008 & 302 009 & 302 008 & 192 579 & 302 007 & 302 016 & 302 023 & 302 013\\
+minimum cost observed & 10 480 &  9 889 & 13 042 &  9 347 & 12 543 & 13 004 & 13 486 & 18 036\\
+maximum cost observed & 14 557 & 14 199 & 16 076 & 13 542 & 19 882 & 21 930 & 19 209 & 23 408\\
 \hline
-average cost observed & 13 464 & 16 112 & 13 867 & 14 599 & 22 778 & 25 610 & 20 733 & 22 469\\
+average cost                & 12 014 & 14 718 & 11 918 & 12 225 &  16 405 & 18 203 & 17 404 & 19 897\\
+average execution time (ms) & 43 634 & 21 244 & 63 120 & 58 786 & 182 548 & 88 736 & 87 360 & 62 573\\
 \hline
 \end{tabular}
-\captionof{table}{seed: 12345, countdown: 100 000, initial solution: assigns roughly an equal number of tasks to all vehicles}
+\captionof{table}{seed: 12345, countdown: 10 000, initial solution: assigns roughly an equal number of tasks to all vehicles}
 \label{table:model_parameters_2}
 \vspace{4mm}
 
-With this different initial solution, the SLS algorithm still tends to distribute all tasks between one or two vehicles, the others having not task assigned.
-And it turned out that among all these suboptimal plans, the best ones often had only a single vehicle.
-Here, we presented the results when the SLS algorithm times out. For a lower maximum number of iterations without improvement (e.g. 10 000), when there are 20 tasks, the algorithm usually stops before the timeout. When there are 30 tasks though, the algorithm often still times out.
-
+With this different initial solution, the search stops sooner on average, and the resulting cost is higher. If we were to increase the countdown, this initial solution might eventually display lower plan costs though, closer to the costs of the plans found with the previous initial solution.
+What is more, the SLS algorithm still tends to distribute all tasks between one vehicle, at most two, the others having not task assigned.
+This suggests that a plan assigning all tasks to a single vehicle is for the company optimal, instead of one using all available vehicles and trying to be "fair" among them all.
 If we added a time constraint in the simulation - the company's vehicle must deliver the tasks within a given amount of time, and are penalized if they do not - then the corresponding SLS algorithm would most likely tend to assign the tasks to multiple vehicles instead of only one.
 
 \end{document}
