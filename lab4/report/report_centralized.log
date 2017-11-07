@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2016.3.19)  5 NOV 2017 21:31
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2016.3.19)  7 NOV 2017 10:33
 entering extended mode
 **report_centralized.tex
 
@@ -333,15 +333,15 @@ LaTeX Font Info:    ... okay on input line 24.
 * layout: <same size as paper>
 * layoutoffset:(h,v)=(0.0pt,0.0pt)
 * modes: 
-* h-part:(L,W,R)=(57.81621pt, 498.66258pt, 57.81621pt)
-* v-part:(T,H,B)=(57.81621pt, 679.33757pt, 57.81621pt)
+* h-part:(L,W,R)=(68.2866pt, 489.10289pt, 56.9055pt)
+* v-part:(T,H,B)=(56.9055pt, 686.84953pt, 51.21495pt)
 * \paperwidth=614.295pt
 * \paperheight=794.96999pt
-* \textwidth=498.66258pt
-* \textheight=679.33757pt
-* \oddsidemargin=-14.45378pt
-* \evensidemargin=-14.45378pt
-* \topmargin=-51.45378pt
+* \textwidth=489.10289pt
+* \textheight=686.84953pt
+* \oddsidemargin=-3.98338pt
+* \evensidemargin=-3.98338pt
+* \topmargin=-52.36449pt
 * \headheight=12.0pt
 * \headsep=25.0pt
 * \topskip=10.0pt
@@ -383,13 +383,16 @@ LaTeX Font Info:    Font shape `OML/cmr/m/n' in size <10> not available
 (Font)              Font shape `OML/cmm/m/it' tried instead on input line 33.
 [1
 
-{C:/Users/Emily/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}]
+{C:/Users/Emily/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}] [2]
+Underfull \hbox (badness 10000) in paragraph at lines 129--130
+
+ []
+
 
 Package caption Warning: \captionsetup{type*=...} or \captionof
 (caption)                outside box or environment on input line 148.
 See the caption package documentation for explanation.
 
-[2]
 
 Package caption Warning: Unused \captionsetup[sub] on input line 15.
 See the caption package documentation for explanation.
@@ -398,13 +401,13 @@ See the caption package documentation for explanation.
 ("C:\Users\Emily\Documents\EPFL\5ème année\Semestre III\Intelligent Agents\In
 telligentAgents\lab4\report\report_centralized.aux") ) 
 Here is how much of TeX's memory you used:
- 4461 strings out of 493643
- 67424 string characters out of 3135409
- 138693 words of memory out of 3000000
- 7804 multiletter control sequences out of 15000+200000
+ 4462 strings out of 493643
+ 67450 string characters out of 3135409
+ 138686 words of memory out of 3000000
+ 7805 multiletter control sequences out of 15000+200000
  10482 words of font info for 38 fonts, out of 3000000 for 9000
  1025 hyphenation exceptions out of 8191
- 36i,8n,38p,450b,362s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 36i,8n,38p,565b,362s stack positions out of 5000i,500n,10000p,200000b,50000s
  <C:\Users\Emily\AppData\
 Local\MiKTeX\2.9\fonts\pk\ljfour\jknappen\ec\dpi600\tcrm1200.pk><C:/Users/Emily
 /AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C
@@ -420,7 +423,7 @@ sers/Emily/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr
 onts/cm/cmsy10.pfb><C:/Users/Emily/AppData/Local/Programs/MiKTeX 2.9/fonts/type
 1/public/amsfonts/cm/cmti10.pfb><C:/Users/Emily/AppData/Local/Programs/MiKTeX 2
 .9/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on report_centralized.pdf (3 pages, 147389 bytes).
+Output written on report_centralized.pdf (3 pages, 153012 bytes).
 PDF statistics:
  61 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)

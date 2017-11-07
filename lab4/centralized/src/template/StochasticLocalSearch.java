@@ -21,10 +21,10 @@ public class StochasticLocalSearch {
 
     // maximum number of steps with no improvement before the stochastic local
     // search algorithm stops
-    private final int COUNTDOWN = 10000;
+    private final int COUNTDOWN = 100000;
 
-    private final double probabilityPickMinimumPlan = 0.4;
-    private final double probabilityPickRandomPlan = 0.3;
+    private final double probabilityPickMinimumPlan = 0.5;
+    private final double probabilityPickRandomPlan = 0.2;
 
     private String stochasticLocalSearchStopCause = "";
 
