@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Random;
 
 import logist.LogistSettings;
-import logist.Measures;
 import logist.agent.Agent;
 import logist.behavior.AuctionBehavior;
 import logist.config.Parsers;
@@ -36,6 +35,12 @@ public class AuctionTemplate implements AuctionBehavior {
     private long timeout_setup;
     private long timeout_bid;
     private long timeout_plan;
+
+    private StochasticLocalSearch SLS;
+    private List<Task> tasksList;
+
+    private double costCurrentPlan;
+    private double costNewPlan;
 
     @Override
     public void setup(Topology topology, TaskDistribution distribution,
@@ -70,12 +75,19 @@ public class AuctionTemplate implements AuctionBehavior {
 	System.out.println("setup (ms): " + timeout_setup);
 	System.out.println("bid   (ms): " + timeout_bid);
 	System.out.println("plan  (ms): " + timeout_plan);
+
+	SLS = new StochasticLocalSearch(agent.vehicles(), timeout_plan);
+	tasksList = new ArrayList<Task>();
+	costCurrentPlan = 0;
+	costNewPlan = 0;
     }
 
     @Override
     public void auctionResult(Task previous, int winner, Long[] bids) {
 	if (winner == agent.id()) {
 	    currentCity = previous.deliveryCity;
+	    tasksList.add(previous);
+	    costCurrentPlan = costNewPlan;
 	}
 
 	System.out.println("--- Previous ---");
@@ -94,18 +106,27 @@ public class AuctionTemplate implements AuctionBehavior {
 
 	// do not bid if task bigger than largest vehicle capacity (or bid in
 	// order to fool adversary? but problem if win task...)
+
+	// Vehicle largestVehicle = getLargestVehicle()
+	// ...
 	if (vehicle.capacity() < task.weight)
 	    return null;
 
 	// compute your stuff here: cost of current plan, cost of next plan,
 	// bid...
 
+	// TODO: maybe do not recompute whole SLS every time?
+	List<Task> tasksList_tmp = new ArrayList<Task>(tasksList);
+	tasksList_tmp.add(task);
+	costNewPlan = SLS.createPlan(tasksList_tmp).cost();
+
+	double marginalCost = costNewPlan - costCurrentPlan;
+
 	long distanceTask = task.pickupCity.distanceUnitsTo(task.deliveryCity);
 	long distanceSum = distanceTask
 		+ currentCity.distanceUnitsTo(task.pickupCity);
-	double marginalCost = Measures.unitsToKM(distanceSum
-		* vehicle.costPerKm());
-	// marignalCost = currenPlan.cost - newPlanWithThisTask.cost
+	// double marginalCost = Measures.unitsToKM(distanceSum *
+	// vehicle.costPerKm());
 
 	// 1) bid below marginalCost only if winning the task disadvantages the
 	// adversary (keep track of [estimated] adversary profit)
@@ -123,10 +144,11 @@ public class AuctionTemplate implements AuctionBehavior {
     public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
 	long time_start = System.currentTimeMillis();
 
-	StochasticLocalSearch stochasticLocalSearch = new StochasticLocalSearch(
-		vehicles, tasks, timeout_plan);
+	// StochasticLocalSearch stochasticLocalSearch = new
+	// StochasticLocalSearch( vehicles, tasks, timeout_plan);
 
-	CentralizedPlan centralizedPlan = stochasticLocalSearch.createPlan();
+	CentralizedPlan centralizedPlan = SLS.createPlan(new ArrayList<Task>(
+		tasks));
 
 	// System.out.println("Agent " + agent.id() + " has tasks " + tasks);
 	Plan planVehicle1 = naivePlan(vehicle, tasks);

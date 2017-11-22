@@ -15,11 +15,8 @@ import logist.task.TaskSet;
 
 public class StochasticLocalSearch {
 
-    // TODO: remember the best plan so far if bump into it per chance (like the
-    // TA suggested)
-
     private final List<Vehicle> vehicles;
-    private final TaskSet tasks;
+    // private TaskSet tasks;
     private final long timeout;
 
     // maximum number of steps with no improvement before the stochastic local
@@ -33,18 +30,17 @@ public class StochasticLocalSearch {
 
     private CentralizedPlan bestPlanSoFar = null;
 
-    public StochasticLocalSearch(List<Vehicle> vehicles, TaskSet tasks,
-	    long timeout) {
+    public StochasticLocalSearch(List<Vehicle> vehicles, long timeout) {
 	System.out.println("Probability p = " + probabilityPickMinimumPlan
 		+ " - " + probabilityPickOld);
+
 	this.vehicles = vehicles;
-	this.tasks = tasks;
 	this.timeout = timeout;
 
 	assert (probabilityPickMinimumPlan + probabilityPickOld <= 1.0);
     }
 
-    public CentralizedPlan createPlan() {
+    public CentralizedPlan createPlan(List<Task> tasks) {
 	long time_start = System.currentTimeMillis();
 
 	CentralizedPlan plan = selectInitialSolution(tasks);
@@ -167,7 +163,7 @@ public class StochasticLocalSearch {
     }
 
     // initial solution where all tasks are assigned to the largest vehicle
-    private CentralizedPlan selectInitialSolution(TaskSet tasks) {
+    private CentralizedPlan selectInitialSolution(List<Task> tasks) {
 	int numberOfVehicles = vehicles.size();
 	LinkedList<Task> tasksList = new LinkedList<Task>(tasks);
 
@@ -196,8 +192,13 @@ public class StochasticLocalSearch {
 
 	taskActionToTaskAction.put(firstTaskaction_pickup,
 		firstTaskaction_delivery);
-	taskActionToTaskAction.put(firstTaskaction_delivery, new TaskAction(
-		tasksList.getFirst(), TaskAction.PICK_UP));
+
+	if (!tasksList.isEmpty()) {
+	    taskActionToTaskAction.put(firstTaskaction_delivery,
+		    new TaskAction(tasksList.getFirst(), TaskAction.PICK_UP));
+	} else {
+	    taskActionToTaskAction.put(firstTaskaction_delivery, null);
+	}
 
 	// do not give any task to the other vehicles
 	for (int i = 0; i < numberOfVehicles; ++i) {
@@ -223,8 +224,10 @@ public class StochasticLocalSearch {
 			TaskAction.PICK_UP));
 	    }
 	}
-	taskActionToTaskAction.put(new TaskAction(task, TaskAction.DELIVERY),
-		null);
+	if (task != null) {
+	    taskActionToTaskAction.put(
+		    new TaskAction(task, TaskAction.DELIVERY), null);
+	}
 
 	return new CentralizedPlan(vehicleToFirstTaskAction,
 		taskActionToTaskAction);
@@ -292,6 +295,7 @@ public class StochasticLocalSearch {
 		if (taskAction != null) {
 		    CentralizedPlan neighbourPlan = changeFirstTaskBetweenVehicles(
 			    previousPlan, thisVehicle, thatVehicle);
+
 		    // [maybe]
 		    // only consider this plan if the constraints are respected
 		    // (only the plan for thatVehicle - the 'destination
@@ -389,6 +393,7 @@ public class StochasticLocalSearch {
 		.get(taskAction_pickup))) {
 	    neighbourPlan.setNextTask(vehicle_1, neighbourPlan
 		    .taskActionToTaskAction().get(taskAction_delivery));
+
 	} else {
 	    neighbourPlan.setNextTask(vehicle_1, neighbourPlan
 		    .taskActionToTaskAction().get(taskAction_pickup));
