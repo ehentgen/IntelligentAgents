@@ -31,10 +31,12 @@ public class StochasticLocalSearch {
 
     private String stochasticLocalSearchStopCause = "";
 
+    private CentralizedPlan bestPlanSoFar = null;
+
     public StochasticLocalSearch(List<Vehicle> vehicles, TaskSet tasks,
 	    long timeout) {
-	System.out.println("Proba p = " + probabilityPickMinimumPlan + " - "
-		+ probabilityPickOld);
+	System.out.println("Probability p = " + probabilityPickMinimumPlan
+		+ " - " + probabilityPickOld);
 	this.vehicles = vehicles;
 	this.tasks = tasks;
 	this.timeout = timeout;
@@ -47,6 +49,7 @@ public class StochasticLocalSearch {
 
 	CentralizedPlan plan = selectInitialSolution(tasks);
 	CentralizedPlan bestPlan = null;
+	bestPlanSoFar = plan;
 
 	boolean timedOut = false;
 	boolean noImprovement = false;
@@ -78,8 +81,8 @@ public class StochasticLocalSearch {
 	    if (plan.cost() >= minimumCostSoFar) {
 		--countDown;
 	    } else {
-		System.out.println("Count : " + countDown + " - Cost : "
-			+ plan.cost());
+		String format = "Count : %6d - Cost : %6.0f\n";
+		System.out.format(format, countDown, plan.cost());
 		countDown = COUNTDOWN;
 		minimumCostSoFar = plan.cost();
 		bestPlan = plan.clone();
@@ -90,7 +93,12 @@ public class StochasticLocalSearch {
 			+ COUNTDOWN + " steps.";
 	    }
 	}
-	return bestPlan;
+
+	if (bestPlan.cost() <= bestPlanSoFar.cost()) {
+	    return bestPlan;
+	} else {
+	    return bestPlanSoFar;
+	}
     }
 
     private CentralizedPlan localChoice(Set<CentralizedPlan> plans,
@@ -103,13 +111,21 @@ public class StochasticLocalSearch {
 
 	List<CentralizedPlan> plansList = new ArrayList<CentralizedPlan>(plans);
 
+	// remember the best plan so far found throughout the whole SLS
+	List<CentralizedPlan> minimumCostPlans = getMinimumCostPlans(plansList,
+		previousPlan);
+	double minCost = bestPlanSoFar.cost();
+	for (CentralizedPlan plan : minimumCostPlans) {
+	    if (plan.cost() < minCost) {
+		minCost = plan.cost();
+		bestPlanSoFar = plan;
+	    }
+	}
+
 	if (plans.isEmpty() || (p1 < p && p <= p2)) {
 	    return previousPlan;
 	} else if (p <= p1) {
-	    List<CentralizedPlan> minimumCostPlans = getMinimumCostPlans(
-		    plansList, previousPlan);
 	    CentralizedPlan minimumCostPlan;
-
 	    if (minimumCostPlans.size() == 1) {
 		minimumCostPlan = minimumCostPlans.get(0);
 	    } else {

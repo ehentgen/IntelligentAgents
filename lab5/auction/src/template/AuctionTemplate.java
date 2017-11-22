@@ -130,9 +130,6 @@ public class AuctionTemplate implements AuctionBehavior {
 
 	// System.out.println("Agent " + agent.id() + " has tasks " + tasks);
 	Plan planVehicle1 = naivePlan(vehicle, tasks);
-
-	// AuctionPlan auctionPlan = new AuctionPlan();
-
 	List<Plan> plans = new ArrayList<Plan>();
 
 	/*
