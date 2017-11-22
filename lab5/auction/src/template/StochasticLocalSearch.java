@@ -135,7 +135,7 @@ public class StochasticLocalSearch {
 	}
     }
 
-    private Vehicle getLargestVehicle() {
+    public Vehicle getLargestVehicle() {
 	Vehicle largestVehicle = vehicles.get(0);
 	int numberOfVehicles = vehicles.size();
 

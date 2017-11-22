@@ -23,7 +23,7 @@ import logist.topology.Topology.City;
  * 
  */
 @SuppressWarnings("unused")
-public class AuctionTemplate implements AuctionBehavior {
+public class NaiveTemplate implements AuctionBehavior {
 
     private Topology topology;
     private TaskDistribution distribution;
@@ -41,8 +41,6 @@ public class AuctionTemplate implements AuctionBehavior {
 
     private double costCurrentPlan;
     private double costNewPlan;
-
-    private double adversaryMinBid;
 
     @Override
     public void setup(Topology topology, TaskDistribution distribution,
@@ -82,8 +80,6 @@ public class AuctionTemplate implements AuctionBehavior {
 	tasksList = new ArrayList<Task>();
 	costCurrentPlan = 0;
 	costNewPlan = 0;
-
-	adversaryMinBid = Integer.MAX_VALUE;
     }
 
     @Override
@@ -95,10 +91,6 @@ public class AuctionTemplate implements AuctionBehavior {
 	}
 
 	int adversaryId = 1 - agent.id();
-
-	if (bids[adversaryId] < adversaryMinBid) {
-	    adversaryMinBid = bids[adversaryId];
-	}
 
 	System.out.println("--- Previous ---");
 	System.out.println("task: " + previous);
@@ -125,18 +117,7 @@ public class AuctionTemplate implements AuctionBehavior {
 	// SLS may have have found a better new plan
 	double marginalCost = Math.max(costNewPlan - costCurrentPlan, 0);
 
-	long distanceTask = task.pickupCity.distanceUnitsTo(task.deliveryCity);
-	long distanceSum = distanceTask
-		+ currentCity.distanceUnitsTo(task.pickupCity);
-	// double marginalCost = Measures.unitsToKM(distanceSum *
-	// vehicle.costPerKm());
-
-	// 1) bid below marginalCost only if winning the task disadvantages the
-	// adversary (keep track of [estimated] adversary profit)
-	// double ratio = 1.0 + (random.nextDouble() * 0.05 * task.id);
-	double margin = 10;
-	double minimumBid = adversaryMinBid - margin;
-
+	double minimumBid = 100;
 	if (task.id <= 0) {
 	    minimumBid = 0;
 	}
@@ -145,10 +126,6 @@ public class AuctionTemplate implements AuctionBehavior {
 
 	double bid = marginalCost + minimumBid + risky_percentage
 		* tasksList.size();
-
-	if (task.id <= 6) {
-	    bid = minimumBid;
-	}
 
 	System.out.println("task: " + task);
 	System.out.println("bid: " + Math.round(bid));
@@ -164,17 +141,14 @@ public class AuctionTemplate implements AuctionBehavior {
 	CentralizedPlan centralizedPlan = SLS.createPlan(new ArrayList<Task>(
 		tasks));
 
-	// System.out.println("Agent " + agent.id() + " has tasks " + tasks);
-	// Plan planVehicle1 = naivePlan(vehicle, tasks);
 	List<Plan> plans = new ArrayList<Plan>();
 
 	for (Vehicle vehicle : vehicles) {
 	    Plan plan = buildPlan(centralizedPlan, vehicle);
-	    // System.out.println(plan);
+	    System.out.println(plan);
 	    plans.add(plan);
 	}
 
-	// plans.add(planVehicle1);
 	while (plans.size() < vehicles.size())
 	    plans.add(Plan.EMPTY);
 
@@ -221,26 +195,4 @@ public class AuctionTemplate implements AuctionBehavior {
 	return plan;
     }
 
-    private Plan naivePlan(Vehicle vehicle, TaskSet tasks) {
-	City current = vehicle.getCurrentCity();
-	Plan plan = new Plan(current);
-
-	for (Task task : tasks) {
-	    // move: current city => pickup location
-	    for (City city : current.pathTo(task.pickupCity))
-		plan.appendMove(city);
-
-	    plan.appendPickup(task);
-
-	    // move: pickup location => delivery location
-	    for (City city : task.path())
-		plan.appendMove(city);
-
-	    plan.appendDelivery(task);
-
-	    // set current city
-	    current = task.deliveryCity;
-	}
-	return plan;
-    }
 }

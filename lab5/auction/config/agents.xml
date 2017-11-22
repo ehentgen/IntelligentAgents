@@ -4,7 +4,12 @@
 	<!-- A list of agents and their behavior classes -->
 	
 	<!-- #### AUCTION AGENTS ### -->
-	<agent name="auction-random">
+	<agent name="auction-naive">
+		<set class-path="bin/"/>
+		<set class-name="template.NaiveTemplate"/>
+	</agent>
+
+	<agent name="auction-main">
 		<set class-path="bin/"/>
 		<set class-name="template.AuctionTemplate"/>
 	</agent>
